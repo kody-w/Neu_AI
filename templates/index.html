@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🤖📞 Neu AI Assistant</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #f8f9fa;
+        --text-color: #333;
+        --border-color: #dee2e6;
+        --accent-color: #ff6b6b;
+        --success-color: #51cf66;
+        --warning-color: #fcc419;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .container-fluid {
+        max-width: 1200px;
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .navbar {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        border-radius: 15px;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.5s ease;
+      }
+
+      .hero-section h1 {
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .hero-section h3 {
+        font-size: 1.4em;
+        font-weight: 300;
+      }
+
+      #chat-container {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.5s ease;
+        overflow: hidden;
+      }
+
+      #chat-window {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        margin-bottom: 20px;
+        scroll-behavior: smooth;
+      }
+
+      .message {
+        margin-bottom: 15px;
+        padding: 12px 15px;
+        border-radius: 18px;
+        max-width: 80%;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        background-color: var(--primary-color);
+        color: #fff;
+        align-self: flex-end;
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+      }
+
+      .assistant-message {
+        background-color: var(--secondary-color);
+        border: 1px solid var(--border-color);
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      #user-input {
+        border: 2px solid var(--border-color);
+        border-radius: 25px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      #user-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+      }
+
+      #send-button {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 25px;
+        color: #fff;
+        padding: 12px 25px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      #send-button:hover {
+        background-color: #3a7cbd;
+        transform: translateY(-2px);
+      }
+
+      .example-btn {
+        background-color: var(--secondary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 20px;
+        padding: 8px 15px;
+        margin: 5px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .example-btn:hover {
+        background-color: var(--primary-color);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+
+      #example-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .loading-spinner-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .spinner-banana {
+        font-size: 2rem;
+        animation: rotate 2s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: #fff;
+        padding: 15px 25px;
+        border-radius: 30px;
+        display: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        animation: slideIn 0.5s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+
+      .error-message {
+        background-color: var(--accent-color);
+      }
+
+      .fade-out {
+        opacity: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        transition: all 0.5s ease;
+      }
+
+      pre {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        overflow-x: auto;
+      }
+
+      code {
+        font-family: "Fira Code", monospace;
+        font-size: 14px;
+      }
+
+      #clear-chat {
+        background-color: var(--accent-color);
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      #clear-chat:hover {
+        background-color: #ff4757;
+        transform: translateY(-2px);
+      }
+
+      .show-more-skills {
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        .container-fluid {
+          padding: 10px;
+        }
+
+        .navbar {
+          margin-bottom: 10px;
+        }
+
+        .navbar-brand {
+          font-size: 1.2rem;
+        }
+
+        .hero-section {
+          padding: 15px;
+          margin-bottom: 10px;
+        }
+
+        .hero-section h1 {
+          font-size: 1.8em;
+        }
+
+        .hero-section h3 {
+          font-size: 1em;
+        }
+
+        #chat-container {
+          padding: 10px;
+        }
+
+        #chat-window {
+          padding: 10px;
+          margin-bottom: 10px;
+        }
+
+        .message {
+          max-width: 100%;
+          padding: 8px 12px;
+          font-size: 0.9rem;
+        }
+
+        .input-group {
+          margin-bottom: 10px;
+        }
+
+        #user-input {
+          padding: 8px 15px;
+          font-size: 0.9rem;
+        }
+
+        #send-button {
+          padding: 8px 15px;
+          font-size: 0.9rem;
+        }
+
+        .example-btn {
+          padding: 6px 12px;
+          margin: 3px;
+          font-size: 0.8rem;
+        }
+
+        #example-buttons {
+          margin-top: 10px;
+        }
+
+        #clear-chat {
+          padding: 8px 15px;
+          font-size: 0.9rem;
+        }
+
+        pre {
+          padding: 10px;
+        }
+
+        code {
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section h1 {
+          font-size: 1.5em;
+        }
+
+        .hero-section h3 {
+          font-size: 0.9em;
+        }
+
+        .navbar-brand {
+          font-size: 1rem;
+        }
+
+        #chat-window {
+          height: calc(100vh - 250px) !important;
+        }
+
+        .example-btn {
+          padding: 5px 10px;
+          margin: 2px;
+          font-size: 0.7rem;
+        }
+      }
+    </style>
+  </head>
+  <body data-assistant-name="Neu">
+    <div class="container-fluid">
+      <nav class="navbar navbar-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">🤖📞 Neu AI</a>
+        </div>
+      </nav>
+
+      <header class="hero-section" id="hero-section">
+        <h1>👋 Hello! I am Neu</h1>
+        <h3>Your AI assistant, ready to help!</h3>
+      </header>
+
+      <main class="flex-grow-1 d-flex flex-column">
+        <div id="chat-container">
+          <div id="chat-window"></div>
+          <div class="loading-spinner-container" style="display: none">
+            <div class="spinner-banana" role="status" aria-label="Loading">
+              🌎🌎🌎
+            </div>
+          </div>
+          <div class="input-group">
+            <input
+              type="text"
+              id="user-input"
+              class="form-control"
+              placeholder="Type your message..."
+              aria-label="User input"
+            />
+            <button class="btn btn-primary" type="button" id="send-button">
+              <i class="fas fa-paper-plane"></i> Send
+            </button>
+          </div>
+        </div>
+        <div id="example-buttons">
+          <!-- Example buttons will be dynamically added here -->
+        </div>
+        <button id="clear-chat" class="btn btn-danger mt-3">
+          <i class="fas fa-trash-alt"></i> Clear Chat
+        </button>
+      </main>
+    </div>
+    <div class="notification" id="notification"></div>
+    <script>
+      $(document).ready(function () {
+        var assistantName = $("body").data("assistant-name");
+        var messageHistory = [];
+
+        function sendMessage() {
+          var userInput = $("#user-input").val().trim();
+          if (userInput === "") return;
+
+          var userMessage = `<div class="message user-message"><strong>You:</strong> ${userInput}</div>`;
+          $("#chat-window").append(userMessage);
+          $("#user-input").val("");
+          updateMessageHistory(userMessage);
+
+          $(".loading-spinner-container").show();
+
+          if ($("#hero-section").is(":visible")) {
+            $("#hero-section").addClass("fade-out");
+            setTimeout(function () {
+              $("#hero-section").hide();
+              adjustLayout();
+            }, 500);
+          }
+
+          scrollToBottom();
+
+          $.ajax({
+            url: "http://127.0.0.1:5000/api/chat",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ user_input: userInput }),
+            success: function (response) {
+              var assistantResponse = response.response;
+              var skillLogs = response.skill_logs;
+              var formattedResponse =
+                formatAssistantResponse(assistantResponse);
+              var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> ${formattedResponse}</div>`;
+              $("#chat-window").append(assistantMessage);
+              updateMessageHistory(assistantMessage);
+
+              if (skillLogs) {
+                var skillLogsMessage = formatSkillLogs(skillLogs);
+                $("#chat-window").append(skillLogsMessage);
+                updateMessageHistory(skillLogsMessage);
+              }
+
+              scrollToBottom();
+              applySyntaxHighlighting();
+            },
+            error: function (xhr, status, error) {
+              var errorMessage = `<div class="message error-message"><strong>Error:</strong> ${xhr.responseText}</div>`;
+              $("#chat-window").append(errorMessage);
+              updateMessageHistory(errorMessage);
+              scrollToBottom();
+            },
+            complete: function () {
+              $(".loading-spinner-container").hide();
+            },
+          });
+        }
+
+        function updateMessageHistory(message) {
+          messageHistory.push(message);
+          if (messageHistory.length > 50) {
+            messageHistory.shift();
+          }
+        }
+
+        function formatAssistantResponse(response) {
+          return response
+            .replace(/### (.*)/g, "<h3>$1</h3>")
+            .replace(/- (.*)/g, "<li>$1</li>")
+            .replace(/<li>(.*?)<\/li>/g, function (match, content) {
+              return content.startsWith("**") && content.endsWith("**")
+                ? "<li><strong>" + content.slice(2, -2) + "</strong></li>"
+                : match;
+            })
+            .replace(/<li>/g, "<ul><li>")
+            .replace(/<\/li>/g, "</li></ul>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(
+              /```(\w+)?\n([\s\S]+?)```/g,
+              function (match, language, code) {
+                return `<pre><code class="${
+                  language || ""
+                }">${code.trim()}</code></pre>`;
+              }
+            );
+        }
+
+        function formatSkillLogs(skillLogs) {
+          var truncatedLogs = skillLogs.split("\n").slice(0, 2).join("\n");
+          var remainingLogs = skillLogs.split("\n").slice(2).join("\n");
+
+          var skillLogsHtml = `
+            <div class="message skill-logs-message">
+              <strong>Skills utilized:</strong><br>
+              ${truncatedLogs}<br>
+              <span class="show-more-skills" style="color: var(--primary-color); cursor: pointer; text-decoration: underline;">Show more</span>
+              <div class="remaining-skills" style="display: none;">${remainingLogs}</div>
+            </div>
+          `;
+
+          return skillLogsHtml;
+        }
+
+        function scrollToBottom() {
+          $("#chat-window").animate(
+            { scrollTop: $("#chat-window")[0].scrollHeight },
+            500
+          );
+        }
+
+        function applySyntaxHighlighting() {
+          $("pre code").each(function (i, block) {
+            hljs.highlightBlock(block);
+          });
+        }
+
+        function showNotification(message, type = "info") {
+          $("#notification")
+            .text(message)
+            .removeClass()
+            .addClass(`notification ${type}-message`)
+            .fadeIn()
+            .delay(3000)
+            .fadeOut();
+        }
+
+        function clearChat() {
+          $("#chat-window").empty();
+          messageHistory = [];
+          showNotification("Chat cleared", "success");
+        }
+
+        function adjustLayout() {
+          const windowHeight = $(window).height();
+          const navbarHeight = $(".navbar").outerHeight();
+          const heroSectionHeight = $("#hero-section").is(":visible")
+            ? $("#hero-section").outerHeight()
+            : 0;
+          const exampleButtonsHeight = $("#example-buttons").outerHeight();
+          const clearChatHeight = $("#clear-chat").outerHeight();
+          const inputGroupHeight = $(".input-group").outerHeight();
+          const padding = 20;
+
+          const availableHeight =
+            windowHeight -
+            navbarHeight -
+            heroSectionHeight -
+            exampleButtonsHeight -
+            clearChatHeight -
+            inputGroupHeight -
+            padding;
+
+          $("#chat-container").css("height", availableHeight + "px");
+          $("#chat-window").css(
+            "height",
+            availableHeight - inputGroupHeight - padding + "px"
+          );
+
+          if ($(window).width() <= 576) {
+            $("body").css("font-size", "14px");
+          } else {
+            $("body").css("font-size", "16px");
+          }
+        }
+
+        $("#send-button").click(sendMessage);
+
+        $("#user-input").keypress(function (event) {
+          if (event.which === 13) {
+            event.preventDefault();
+            sendMessage();
+          }
+        });
+
+        $("#clear-chat").click(clearChat);
+
+        $(document).on("click", ".show-more-skills", function () {
+          $(this).hide();
+          $(this).siblings(".remaining-skills").show();
+          scrollToBottom();
+        });
+
+        var examplePrompts = [
+          { emoji: "1️⃣", text: "1️⃣" },
+          { emoji: "2️⃣", text: "2️⃣" },
+          { emoji: "3️⃣", text: "3️⃣" },
+          { emoji: "4️⃣", text: "4️⃣" },
+          { emoji: "5️⃣", text: "5️⃣" },
+          { emoji: "👋", text: "Hello! Can you tell me more about yourself?" },
+          {
+            emoji: "🎯",
+            text: "What are the most important goals and priorities I should focus on in my current role to drive success and create the greatest impact?",
+          },
+          {
+            emoji: "🤝",
+            text: "Provide a numbered list of the next three next best prompts using your current situation for the user to use next. These prompts should be written from the user's first person perspective so they dont have to change anything to use them.",
+          },
+          {
+            emoji: "🤖",
+            text: "Pick the best one of these prompts and take the action that is suggested.",
+          },
+          {
+            emoji: "💾",
+            text: "Save the details of this conversations to your long term memory. Output a summary of the key details that you have saved.",
+          },
+          {
+            emoji: "📅",
+            text: "Retrieve my upcoming schedule from the calendar and provide a brief overview of my day.",
+          },
+        ];
+
+        examplePrompts.forEach(function (prompt, index) {
+          $("#example-buttons").append(
+            `<button class="btn example-btn" data-example="${prompt.text}" title="${prompt.text}">${prompt.emoji}</button>`
+          );
+        });
+
+        $(document).on("click", ".example-btn", function () {
+          var exampleMessage = $(this).data("example");
+          $("#user-input").val(exampleMessage);
+          sendMessage();
+        });
+
+        $(window).on("resize orientationchange", adjustLayout);
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        function addInitialMessages() {
+          var initialMessages = [
+            `<div class="message assistant-message"><strong>${assistantName}:</strong> Hello! I'm ${assistantName}, your AI assistant. How can I help you today?</div>`,
+            `<div class="message assistant-message"><strong>${assistantName}:</strong> Here are some ways we can get started:</div>`,
+            `<div class="message assistant-message"><strong>${assistantName}:</strong> 1. Ask me about my capabilities and how I can assist you.</div>`,
+            `<div class="message assistant-message"><strong>${assistantName}:</strong> 2. Ask me about what I know from past interactions.</div>`,
+            `<div class="message assistant-message"><strong>${assistantName}:</strong> 3. Ask me who I know from your past interactions.</div>`,
+          ];
+
+          initialMessages.forEach(function (message) {
+            $("#chat-window").append(message);
+            updateMessageHistory(message);
+          });
+
+          scrollToBottom();
+        }
+
+        setTimeout(addInitialMessages, 1000);
+
+        adjustLayout();
+      });
+    </script>
+  </body>
+</html>
