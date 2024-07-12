@@ -60,6 +60,76 @@ NeuAI is now an open-source project, which brings several benefits:
 4. **Customizable and Extendable**: 
    As an open-source project, NeuAI can be tailored to fit specific needs. Whether it's for personal use, business applications, or academic research, the flexibility of NeuAI allows it to be adapted and extended in countless ways.
 
+## Use Cases and Examples
+
+To help you get started with NeuAI and explore its capabilities, we've prepared a set of use cases and example prompts. These examples demonstrate various features of NeuAI, from its long-term memory to its ability to manage sub-assistants for complex tasks.
+
+### 1. Long-Term Memory and Personalization
+
+**Prompt:** "Hi NeuAI, can you remember my favorite color? It's blue."
+
+**Follow-up (in a later conversation):** "What's my favorite color?"
+
+This demonstrates NeuAI's ability to retain information across conversations.
+
+### 2. Adaptive Tool Utilization
+
+**Prompt:** "I need to analyze the sentiment of tweets about climate change. Can you help me with that?"
+
+This will showcase NeuAI's ability to select and use appropriate tools (in this case, possibly a sentiment analysis tool and a data retrieval tool) to accomplish a complex task.
+
+### 3. Visible Thought Process
+
+**Prompt:** "Explain your thought process as you solve this riddle: I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?"
+
+This will demonstrate NeuAI's ability to show its reasoning steps.
+
+### 4. Simulation Modeling
+
+**Prompt:** "Can you simulate a simple ecosystem with predators and prey over 10 generations?"
+
+This will showcase NeuAI's ability to create and run simulations.
+
+### 5. Skill Chaining
+
+**Prompt:** "I want to plan a trip to Japan. Can you help me research popular destinations, find flight options, and then create an itinerary?"
+
+This will demonstrate NeuAI's ability to chain multiple skills together for a complex task.
+
+### 6. Asynchronous Sub-Assistant Interaction
+
+**Prompt:** "Create a sub-assistant to help with a coding task. The initial task is to write a Python function that implements the bubble sort algorithm. Interact with it for up to 5 turns, providing guidance and corrections as needed."
+
+This will showcase the new AsyncAssistantSkill, demonstrating how NeuAI can create and manage a sub-assistant to handle specific tasks.
+
+### 7. Creative Writing with Memory
+
+**Prompt:** "Let's write a short story together. Start with a character named Alex who lives in a futuristic city."
+
+**Follow-up:** "Continue the story, but introduce a plot twist involving Alex's secret past."
+
+This will demonstrate NeuAI's ability to engage in creative tasks while maintaining context.
+
+### 8. Problem-Solving with Explanation
+
+**Prompt:** "I'm trying to optimize the energy efficiency of my home. Can you provide a step-by-step guide, explaining the reasoning behind each recommendation?"
+
+This will showcase NeuAI's problem-solving skills and its ability to explain its reasoning.
+
+### 9. Learning and Adaptation
+
+**Prompt:** "Teach me about quantum computing, but adapt your explanation based on my responses to make sure I understand each concept before moving on."
+
+This will demonstrate NeuAI's ability to adapt its teaching style based on user feedback.
+
+### 10. Ethical Decision Making
+
+**Prompt:** "I'm facing an ethical dilemma at work. My colleague has made a minor mistake that would cost the company money, but no one else has noticed. What should I do? Please consider different ethical frameworks in your response."
+
+This will showcase NeuAI's ability to handle complex, nuanced situations and provide well-reasoned advice.
+
+Try out these use cases to explore NeuAI's capabilities. Remember that as an experimental AI, responses may vary, and always use critical thinking when interpreting the results.
+
 ## Potential Applications
 
 1. **Personal AI Assistant**: 
@@ -127,6 +197,7 @@ NeuAI is now an open-source project, which brings several benefits:
   - `dream_generation_skill.py`: Generates random dreams based on past conversations.
   - `sleep_skill.py`: Simulates the AI going to sleep and saving its state.
   - `wake_skill.py`: Initializes the AI's state on wake-up.
+  - `async_assistant_skill.py`: Manages asynchronous sub-assistant interactions.
 - `config/`: Configuration files and API keys.
 - `static/`: Static assets like CSS, JavaScript, and images.
 - `templates/`: HTML templates for the web interface.
