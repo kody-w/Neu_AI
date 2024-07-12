@@ -98,10 +98,12 @@ NeuAI is now an open-source project, which brings several benefits:
    - Create a `config/api_keys.json` file with the following structure:
      ```json
      {
-       "openai": "your-openai-api-key"
+       "azure_openai_api_key": "your-azure-openai-api-key",
+       "azure_openai_api_version": "your-azure-openai-api-version",
+       "azure_openai_endpoint": "your-azure-openai-endpoint"
      }
      ```
-   - Replace `"your-openai-api-key"` with your actual OpenAI API key.
+   - Replace the placeholder values with your actual Azure OpenAI API credentials.
 
 5. Run the application:
    ```
@@ -114,17 +116,21 @@ NeuAI is now an open-source project, which brings several benefits:
 
 - `app.py`: The main Flask application file that handles routes and server-side logic.
 - `assistant.py`: Defines the `Assistant` class, which is the core of NeuAI's functionality.
+- `interface.py`: Provides the command-line interface for interacting with the assistant.
 - `skills/`: Directory containing various skill implementations:
   - `basic_skill.py`: The base class for all skills.
-  - `memory_management_skill.py`: Handles long-term memory operations.
-  - `tool_selection_skill.py`: Manages the adaptive tool selection process.
-  - `thought_process_skill.py`: Implements the visible thought process feature.
-  - `simulation_modeling_skill.py`: Provides simulation and modeling capabilities.
-- `tools/`: Directory containing the various tools that NeuAI can utilize.
+  - `manage_memory_skill.py`: Handles long-term memory operations.
+  - `context_memory_skill.py`: Manages context-based memory.
+  - `ai_internal_processing_skill.py`: Implements the visible thought process feature.
+  - `call_power_automate_flow_skill.py`: Enables interaction with Microsoft Power Automate.
+  - `chain_call_multiple_skills_skill.py`: Allows for chaining multiple skills together.
+  - `dream_generation_skill.py`: Generates random dreams based on past conversations.
+  - `sleep_skill.py`: Simulates the AI going to sleep and saving its state.
+  - `wake_skill.py`: Initializes the AI's state on wake-up.
 - `config/`: Configuration files and API keys.
 - `static/`: Static assets like CSS, JavaScript, and images.
 - `templates/`: HTML templates for the web interface.
-- `tests/`: Unit and integration tests for the project.
+- `README.md`: This file, containing project documentation.
 
 ## Responsible AI Considerations
 
@@ -191,6 +197,32 @@ We encourage users and developers to actively participate in the NeuAI community
 
 Your feedback is crucial for the continued improvement and development of NeuAI. Whether it's a bug report, a feature request, or a success story, we want to hear from you!
 
+## Disclaimer and Experimental Nature
+
+### Personal Project Disclaimer
+
+NeuAI is a personal project developed by Kody Wildfeuer. All thoughts, ideas, and work related to this project are my own and do not reflect the views, opinions, or endorsement of my employer. This project is not affiliated with, sponsored by, or associated with my employer in any way.
+
+### Experimental Status
+
+NeuAI is an experimental project in active development. Users should be aware of the following:
+
+1. **Accuracy Variation**: The performance and accuracy of NeuAI can vary significantly based on specific use cases. Results may not always be consistent or reliable across different scenarios.
+
+2. **Experimental Status**: This project is primarily for research and experimentation. It is not intended for critical or production environments without extensive testing and validation.
+
+3. **User Discretion**: Users should exercise caution and use their discretion when interpreting or acting upon information provided by NeuAI. Always verify important information through reliable sources.
+
+4. **Ongoing Development**: Features, capabilities, and performance are subject to change as the project evolves. Regular updates may alter functionality.
+
+5. **Not for Critical Use**: NeuAI should not be used for making important decisions in areas such as healthcare, finance, legal matters, or any domain where errors could lead to significant consequences.
+
+6. **Bias and Limitations**: Like all AI systems, NeuAI may exhibit biases or have limitations that are not immediately apparent. Users should be critical and aware of these potential issues.
+
+7. **Data Privacy**: While we strive to implement strong data protection measures, users should be cautious about sharing sensitive personal information.
+
+By using NeuAI, you acknowledge and accept these limitations and agree to use the system responsibly and at your own risk.
+
 ## License
 
 NeuAI is released under the MIT License. See the LICENSE file for more details.
@@ -201,4 +233,4 @@ For inquiries, please contact the project maintainer at [wildfeuer05@gmail.com](
 
 ---
 
-NeuAI is a project in active development. While we strive for excellence, please be aware that the AI may occasionally produce unexpected results. Always verify critical information and use NeuAI responsibly.
+Remember, NeuAI is a tool for exploration and learning in the field of AI. Enjoy experimenting with it, but always approach its outputs with a critical mind and use it responsibly.
