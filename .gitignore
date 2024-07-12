@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 config/api_keys.json
 .DS_Store
+skills/async_assistant_skill.py
