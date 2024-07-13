@@ -180,3 +180,5 @@ group_chats/the_echoes_of_time_writing_group/config/api_keys.json
 group_chats/whispered_tales_collective/chat_config.json
 group_chats/whispered_tales_collective/group_chat.py
 group_chats/whispered_tales_collective/config/api_keys.json
+run.py
+teachable.py
