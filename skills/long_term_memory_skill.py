@@ -2,9 +2,9 @@ import json
 import os
 from skills.basic_skill import BasicSkill
 
-class ContextMemorySkill(BasicSkill):
+class LongTermMemorySkill(BasicSkill):
     def __init__(self):
-        self.name = 'ContextMemory'
+        self.name = 'LongTermMemory'
         self.metadata = {
             "name": self.name,
             "description": "Recalls and provides context based on stored memories of the past interactions with the user.",
@@ -37,5 +37,5 @@ class ContextMemorySkill(BasicSkill):
         return "Here's what I remember: " + " ".join(summaries)
 
 # Example usage:
-# context_memory_skill = ContextMemorySkill()
+# context_memory_skill = LongTermMemorySkill()
 # print(context_memory_skill.perform())
