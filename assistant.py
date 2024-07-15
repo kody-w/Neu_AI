@@ -2,7 +2,7 @@ from openai import AzureOpenAI
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, time
 import json
 
 class Assistant():
