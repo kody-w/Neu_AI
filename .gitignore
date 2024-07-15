@@ -182,3 +182,13 @@ group_chats/whispered_tales_collective/group_chat.py
 group_chats/whispered_tales_collective/config/api_keys.json
 run.py
 teachable.py
+created_assistants/*
+group_chats/*
+aiinternalprocessing_log.txt
+consciousness_log.json
+consciousness.json
+daily_analysis_report.json
+memory copy.json
+memory.json
+monthly_analysis_report.json
+motivationalquote_log.txt
