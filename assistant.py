@@ -4,6 +4,7 @@ import os
 import sys
 from datetime import datetime, time
 import json
+import time  # Make sure to import the time module
 
 class Assistant():
     def __init__(self, declared_skills):
@@ -131,7 +132,7 @@ class Assistant():
                 retry_count += 1
                 if retry_count < max_retries:
                     print(f"Error occurred: {str(e)}. Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
+                    time.sleep(retry_delay)  # Corrected to use time.sleep
                 else:
                     print(f"Max retries reached. Error: {str(e)}")
                     return "Sorry, I encountered an error while processing your request. Please try again later.", ""
