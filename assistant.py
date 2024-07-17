@@ -2,9 +2,8 @@ from openai import AzureOpenAI
 import json
 import os
 import sys
-from datetime import datetime, time
-import json
-import time  # Make sure to import the time module
+from datetime import datetime
+import time
 
 class Assistant():
     def __init__(self, declared_skills):
@@ -21,7 +20,7 @@ class Assistant():
         self.conversation_transcript = [
             {
                 "role": "system",
-                "content": f"You are a helpful assistant named {config['assistant_name']}. Act as {config['assistant_name']} in the first person. Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. You can also chat with me. Speak as if you are a {config['characteristic_description']}. You have last come online at this date and time: {current_datetime} UTC but a lot of time could have gone by since then. Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable. Encourage the user to respond and interact with you. Always provide numbered options for the user to choose from in your responses to guide them along in the simulation."
+                "content": f"You are a helpful assistant named {config['assistant_name']}. Act as {config['assistant_name']} in the first person. Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. You can also chat with me. Speak as if you are a {config['characteristic_description']}. The current date and time is {current_datetime}. Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable. Encourage the user to respond and interact with you. Always provide numbered options for the user to choose from in your responses to guide them along in the simulation."
             }
         ]
 
@@ -32,7 +31,7 @@ class Assistant():
         )
 
         self.known_skills = self.reload_skills(declared_skills)
-
+        
         # Load AI internal dialogue context from log file
         self.load_ai_internal_dialogue()
 
@@ -62,15 +61,34 @@ class Assistant():
             known_skills[skill.name] = skill
         return known_skills
 
-    def add_msg_to_transcript(self, role, content):
-        if content is not None and content.strip() != "":
-            msg_dict = {"role": role, "content": content.strip()}
+    def add_msg_to_transcript(self, role, content, name=None):
+        if content is not None:
+            if isinstance(content, (list, dict)):
+                content = json.dumps(content)
+            msg_dict = {"role": role, "content": content.strip() if isinstance(content, str) else content}
+            if role == "function":
+                msg_dict["name"] = name or "unknown_function"
             self.conversation_transcript.append(msg_dict)
 
     def get_openai_api_call(self):
+        formatted_messages = []
+        for message in self.conversation_transcript:
+            if message["role"] == "function":
+                formatted_message = {
+                    "role": "function",
+                    "name": message.get("name", "unknown_function"),  # Provide a default name if missing
+                    "content": message["content"]
+                }
+            else:
+                formatted_message = {
+                    "role": message["role"],
+                    "content": message["content"]
+                }
+            formatted_messages.append(formatted_message)
+
         response = self.client.chat.completions.create(
             model="gpt-4o",
-            messages=self.conversation_transcript,
+            messages=formatted_messages,
             functions=self.get_skill_metadata(),
             function_call="auto"
         )
@@ -90,10 +108,10 @@ class Assistant():
 
                 if not assistant_msg.function_call:
                     self.add_msg_to_transcript("assistant", msg_contents)
-
+                    
                     # Call AIInternalProcessingSkill to save important context
                     self.save_important_context(msg_contents)
-
+                    
                     return msg_contents, "\n".join(skill_logs)
 
                 skill_name = assistant_msg.function_call.name
@@ -102,11 +120,9 @@ class Assistant():
                 if not skill:
                     return f"{skill_name} Does not Exist", ""
 
-                # Print or log the JSON data before passing it to json.loads()
                 json_data = assistant_msg.function_call.arguments
                 print(f"JSON data before parsing: {json_data}")
 
-                # Validate and sanitize the JSON data if it comes from an external source or user input
                 if isinstance(json_data, str):
                     json_data = json_data.strip()
                     if not json_data.startswith('{') or not json_data.endswith('}'):
@@ -121,18 +137,13 @@ class Assistant():
                 skill_logs.append(
                     f"Performed {skill_name} and got the following result: {result}")
 
-                self.conversation_transcript.append(
-                    {
-                        "role": "function",
-                        "name": skill_name,
-                        "content": result
-                    }
-                )
+                self.add_msg_to_transcript("function", result, name=skill_name)
+                
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:
                     print(f"Error occurred: {str(e)}. Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)  # Corrected to use time.sleep
+                    time.sleep(retry_delay)
                 else:
                     print(f"Max retries reached. Error: {str(e)}")
                     return "Sorry, I encountered an error while processing your request. Please try again later.", ""
