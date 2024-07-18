@@ -1,9 +1,48 @@
-Flask==2.0.1
-openai==0.27.0
-requests==2.26.0
-beautifulsoup4==4.10.0
-pandas==1.3.3
-Werkzeug==2.0.1
+# Web scraping and browser automation
+selenium==4.10.0
+webdriver_manager==3.8.6
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Image processing
+Pillow==9.5.0
+
+# API interaction
+openai==0.27.8
+
+# Data parsing
 python-dateutil==2.8.2
-feedparser==6.0.8
-twilio==7.8.0
+
+# Web framework (if using Flask)
+Flask==2.3.2
+
+# Azure OpenAI
+azure-openai==1.0.0
+
+# Utility libraries
+six==1.16.0
+urllib3==1.26.16
+certifi==2023.5.7
+charset-normalizer==3.1.0
+idna==3.4
+
+# Logging (usually part of Python standard library, but listed for completeness)
+logging
+
+# Date and time handling (part of Python standard library)
+datetime
+
+# JSON handling (part of Python standard library)
+json
+
+# Base64 encoding (part of Python standard library)
+base64
+
+# File and path operations (part of Python standard library)
+os
+
+# Error tracing (part of Python standard library)
+traceback
+
+# Time-related functions (part of Python standard library)
+time
