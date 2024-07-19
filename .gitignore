@@ -202,3 +202,4 @@ plans.json
 ego.json
 command_pipeline.json
 unexpected_inputs.json
+/generated_stories

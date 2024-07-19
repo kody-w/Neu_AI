@@ -8,12 +8,13 @@ from openai import AzureOpenAI
 from datetime import datetime
 import logging
 
-class AutoGenGroupChatSkill(BasicSkill):
+
+class DynamicAutoGenGroupChatSkill(BasicSkill):
     def __init__(self):
-        self.name = 'AutoGenGroupChat'
+        self.name = 'DynamicAutoGenGroupChat'
         self.metadata = {
             'name': self.name,
-            'description': 'A skill to create, manage, and run AutoGen-based group chats with detailed reporting and logging.',
+            'description': 'A skill to create and run dynamic AutoGen-based group chats with specialized agent roles, detailed reporting, and process logging.',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -25,9 +26,22 @@ class AutoGenGroupChatSkill(BasicSkill):
                         'type': 'string',
                         'description': 'A detailed description of the task for the group chat'
                     },
-                    'num_participants': {
-                        'type': 'integer',
-                        'description': 'The number of AI participants in the group chat'
+                    'roles': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'name': {'type': 'string'},
+                                'role': {'type': 'string'},
+                                'prompt': {'type': 'string'}
+                            },
+                            'required': ['name', 'role', 'prompt']
+                        },
+                        'description': 'An array of specialized roles for the group chat'
+                    },
+                    'manager_prompt': {
+                        'type': 'string',
+                        'description': 'The prompt for the group manager role'
                     },
                     'max_turns': {
                         'type': 'integer',
@@ -42,7 +56,7 @@ class AutoGenGroupChatSkill(BasicSkill):
                         'description': 'The maximum number of tokens for each LLM response'
                     }
                 },
-                'required': ['chat_name', 'task_description', 'num_participants', 'max_turns', 'temperature', 'max_tokens']
+                'required': ['chat_name', 'task_description', 'roles', 'manager_prompt', 'max_turns', 'temperature', 'max_tokens']
             }
         }
         super().__init__(name=self.name, metadata=self.metadata)
@@ -63,7 +77,7 @@ class AutoGenGroupChatSkill(BasicSkill):
             sanitized = '_' + sanitized
         return sanitized
 
-    def perform(self, chat_name, task_description, num_participants, max_turns, temperature, max_tokens):
+    def perform(self, chat_name, task_description, roles, manager_prompt, max_turns, temperature, max_tokens):
         try:
             logging.info(f"Starting group chat: {chat_name}")
             logging.info(f"Task description: {task_description}")
@@ -77,19 +91,23 @@ class AutoGenGroupChatSkill(BasicSkill):
             logging.info("Azure OpenAI client created")
 
             # Configure the default LLM settings
-            default_llm_config = self.get_default_llm_config(api_keys, temperature, max_tokens)
-            logging.info(f"LLM config set up with temperature {temperature} and max_tokens {max_tokens}")
+            default_llm_config = self.get_default_llm_config(
+                api_keys, temperature, max_tokens)
+            logging.info(f"LLM config set up with temperature {
+                         temperature} and max_tokens {max_tokens}")
 
-            # Create participants
-            participants = []
-            for i in range(num_participants):
-                participant = autogen.AssistantAgent(
-                    name=self.sanitize_name(f"Participant_{i+1}"),
-                    system_message=f"You are Participant {i+1} in this group chat. Your task is: {task_description}",
-                    llm_config=default_llm_config,
-                )
-                participants.append(participant)
-            logging.info(f"Created {num_participants} participants")
+            # Create specialized agents
+            agents = self.create_specialized_agents(roles, default_llm_config)
+            logging.info(f"Created {len(agents)} specialized agents")
+
+            # Create a group manager agent
+            group_manager = autogen.AssistantAgent(
+                name=self.sanitize_name("GroupManager"),
+                system_message=f"You are the group manager. {
+                    manager_prompt} Ensure the group stays on task and delivers what is expected based on this goal: {task_description}",
+                llm_config=default_llm_config,
+            )
+            logging.info("Group manager created")
 
             # Create a user proxy agent
             user_proxy = autogen.UserProxyAgent(
@@ -97,42 +115,63 @@ class AutoGenGroupChatSkill(BasicSkill):
                 system_message="You are a user proxy that will help guide the conversation and ensure the task is completed.",
                 human_input_mode="NEVER",
                 llm_config=default_llm_config,
-                code_execution_config={"use_docker": False}  # Disable Docker usage
+                # Disable Docker usage
+                code_execution_config={"use_docker": False}
             )
             logging.info("User proxy created")
 
             # Create GroupChat and GroupChatManager
-            group_chat = autogen.GroupChat(agents=participants + [user_proxy], messages=[], max_round=max_turns)
-            manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=default_llm_config)
+            group_chat = autogen.GroupChat(
+                agents=agents + [group_manager, user_proxy], messages=[], max_round=max_turns)
+            manager = autogen.GroupChatManager(
+                groupchat=group_chat, llm_config=default_llm_config)
             logging.info("GroupChat and GroupChatManager created")
 
             # Initiate the chat
             logging.info("Initiating group chat")
-            result = user_proxy.initiate_chat(manager, message=task_description)
+            chat_result = user_proxy.initiate_chat(
+                manager, message=task_description)
             logging.info("Group chat completed")
 
             # Generate and save the report
-            report = self.generate_report(chat_name, task_description, num_participants, max_turns, temperature, max_tokens, result)
+            report = self.generate_report(
+                chat_name, task_description, roles, manager_prompt, max_turns, temperature, max_tokens, chat_result)
             report_path = self.save_report(chat_name, report)
             logging.info(f"Report generated and saved at: {report_path}")
 
             # Save the chat results and configuration
-            self.save_chat_results(chat_name, result)
-            self.save_chat_config(chat_name, task_description, num_participants, max_turns, temperature, max_tokens)
+            self.save_chat_results(chat_name, chat_result)
+            self.save_chat_config(chat_name, task_description, roles,
+                                  manager_prompt, max_turns, temperature, max_tokens)
             logging.info("Chat results and configuration saved")
 
             return f"Group chat '{chat_name}' executed successfully. Report saved at: {report_path}"
         except Exception as e:
-            logging.error(f"An error occurred while executing the group chat: {str(e)}", exc_info=True)
+            logging.error(f"An error occurred while executing the group chat: {
+                          str(e)}", exc_info=True)
             return f"An error occurred while executing the group chat: {str(e)}"
 
-    def generate_report(self, chat_name, task_description, num_participants, max_turns, temperature, max_tokens, chat_result):
+    def create_specialized_agents(self, roles, llm_config):
+        agents = []
+        for role in roles:
+            sanitized_name = self.sanitize_name(role['name'])
+            agent = autogen.AssistantAgent(
+                name=sanitized_name,
+                system_message=f"You are the {role['role']}. {role['prompt']}",
+                llm_config=llm_config,
+            )
+            agents.append(agent)
+            logging.info(f"Created agent: {sanitized_name} as {role['role']}")
+        return agents
+
+    def generate_report(self, chat_name, task_description, roles, manager_prompt, max_turns, temperature, max_tokens, chat_result):
         report = {
             "chat_name": chat_name,
             "task_description": task_description,
             "execution_time": datetime.now().isoformat(),
             "configuration": {
-                "num_participants": num_participants,
+                "roles": roles,
+                "manager_prompt": manager_prompt,
                 "max_turns": max_turns,
                 "temperature": temperature,
                 "max_tokens": max_tokens
@@ -154,7 +193,8 @@ class AutoGenGroupChatSkill(BasicSkill):
     def save_report(self, chat_name, report):
         reports_dir = "group_chat_reports"
         os.makedirs(reports_dir, exist_ok=True)
-        report_filename = f"{chat_name.lower().replace(' ', '_')}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_filename = f"{chat_name.lower().replace(' ', '_')}_report_{
+            datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         report_path = os.path.join(reports_dir, report_filename)
         with open(report_path, 'w', encoding='utf-8') as file:
             json.dump(report, file, indent=2, ensure_ascii=False)
@@ -166,10 +206,12 @@ class AutoGenGroupChatSkill(BasicSkill):
                 return json.load(api_keys_file)
         except FileNotFoundError:
             logging.error(f"API keys file '{api_keys_path}' not found.")
-            raise Exception(f"Error: API keys file '{api_keys_path}' not found.")
+            raise Exception(f"Error: API keys file '{
+                            api_keys_path}' not found.")
         except json.JSONDecodeError:
             logging.error(f"Invalid JSON in API keys file '{api_keys_path}'.")
-            raise Exception(f"Error: Invalid JSON in API keys file '{api_keys_path}'.")
+            raise Exception(f"Error: Invalid JSON in API keys file '{
+                            api_keys_path}'.")
 
     def create_azure_openai_client(self, api_keys):
         return AzureOpenAI(
@@ -193,23 +235,26 @@ class AutoGenGroupChatSkill(BasicSkill):
     def save_chat_results(self, chat_name, result):
         group_chats_dir = "group_chats"
         os.makedirs(group_chats_dir, exist_ok=True)
-        chat_dir = os.path.join(group_chats_dir, chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(
+            group_chats_dir, chat_name.lower().replace(' ', '_'))
         os.makedirs(chat_dir, exist_ok=True)
-        
+
         results_file = os.path.join(chat_dir, "chat_results.json")
         with open(results_file, 'w', encoding='utf-8') as file:
             json.dump(result, file, indent=2, ensure_ascii=False)
 
-    def save_chat_config(self, chat_name, task_description, num_participants, max_turns, temperature, max_tokens):
+    def save_chat_config(self, chat_name, task_description, roles, manager_prompt, max_turns, temperature, max_tokens):
         group_chats_dir = "group_chats"
-        chat_dir = os.path.join(group_chats_dir, chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(
+            group_chats_dir, chat_name.lower().replace(' ', '_'))
         os.makedirs(chat_dir, exist_ok=True)
 
         config_file = os.path.join(chat_dir, "chat_config.json")
         config = {
             'chat_name': chat_name,
             'task_description': task_description,
-            'num_participants': num_participants,
+            'roles': roles,
+            'manager_prompt': manager_prompt,
             'max_turns': max_turns,
             'temperature': temperature,
             'max_tokens': max_tokens
@@ -229,7 +274,8 @@ class AutoGenGroupChatSkill(BasicSkill):
         return "Created Group Chats:\n" + "\n".join(chats)
 
     def delete_group_chat(self, chat_name):
-        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(
+            "group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -240,7 +286,8 @@ class AutoGenGroupChatSkill(BasicSkill):
             return f"An error occurred while deleting the group chat: {str(e)}"
 
     def update_group_chat(self, chat_name, new_task_description):
-        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(
+            "group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -248,18 +295,19 @@ class AutoGenGroupChatSkill(BasicSkill):
         try:
             with open(config_file, 'r') as file:
                 config = json.load(file)
-            
+
             config['task_description'] = new_task_description
-            
+
             with open(config_file, 'w') as file:
                 json.dump(config, file, indent=2)
-            
+
             return f"Group chat '{chat_name}' has been updated successfully."
         except Exception as e:
             return f"An error occurred while updating the group chat: {str(e)}"
 
     def get_group_chat_info(self, chat_name):
-        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(
+            "group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -267,10 +315,13 @@ class AutoGenGroupChatSkill(BasicSkill):
         try:
             with open(config_file, 'r') as file:
                 config = json.load(file)
-            
+
             info = f"Chat Name: {config['chat_name']}\n"
             info += f"Task Description: {config['task_description']}\n"
-            info += f"Number of Participants: {config['num_participants']}\n"
+            info += f"Number of Roles: {len(config['roles'])}\n"
+            info += f"Roles:\n"
+            for role in config['roles']:
+                info += f"  - {role['name']} ({role['role']})\n"
             info += f"Max Turns: {config['max_turns']}\n"
             info += f"Temperature: {config['temperature']}\n"
             info += f"Max Tokens: {config['max_tokens']}\n"
@@ -279,12 +330,14 @@ class AutoGenGroupChatSkill(BasicSkill):
             return f"An error occurred while retrieving group chat information: {str(e)}"
 
     def backup_group_chat(self, chat_name, backup_dir="group_chat_backups"):
-        source_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+        source_dir = os.path.join(
+            "group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(source_dir):
             return f"Group chat '{chat_name}' not found."
 
         os.makedirs(backup_dir, exist_ok=True)
-        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+        backup_path = os.path.join(
+            backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
 
         try:
             shutil.copytree(source_dir, backup_path)
@@ -293,11 +346,13 @@ class AutoGenGroupChatSkill(BasicSkill):
             return f"An error occurred while backing up the group chat: {str(e)}"
 
     def restore_group_chat(self, chat_name, backup_dir="group_chat_backups"):
-        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+        backup_path = os.path.join(
+            backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
         if not os.path.exists(backup_path):
             return f"Backup for group chat '{chat_name}' not found."
 
-        target_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+        target_dir = os.path.join(
+            "group_chats", chat_name.lower().replace(' ', '_'))
 
         try:
             if os.path.exists(target_dir):
@@ -306,3 +361,5 @@ class AutoGenGroupChatSkill(BasicSkill):
             return f"Group chat '{chat_name}' has been restored successfully from backup."
         except Exception as e:
             return f"An error occurred while restoring the group chat: {str(e)}"
+
+# End of DynamicAutoGenGroupChatSkill class
