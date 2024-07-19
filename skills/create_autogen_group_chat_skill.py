@@ -10,7 +10,7 @@ class AutoGenGroupChatSkill(BasicSkill):
         self.name = 'AutoGenGroupChat'
         self.metadata = {
             'name': self.name,
-            'description': 'A skill to create and manage ultra-customizable AutoGen-based group chats with per-agent parameter tuning.',
+            'description': 'A skill to create and manage ultra-customizable AutoGen-based group chats with per-agent parameter tuning and early termination capability.',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -83,6 +83,11 @@ class AutoGenGroupChatSkill(BasicSkill):
                         'type': 'string',
                         'description': 'The default Azure deployment name for the model',
                         'default': 'gpt-4o'
+                    },
+                    'allow_early_termination': {
+                        'type': 'boolean',
+                        'description': 'Whether to allow the manager to end the chat early if the task is completed',
+                        'default': True
                     }
                 },
                 'required': ['chat_name', 'task_description', 'participants', 'max_turns']
@@ -90,7 +95,7 @@ class AutoGenGroupChatSkill(BasicSkill):
         }
         super().__init__(name=self.name, metadata=self.metadata)
 
-    def perform(self, chat_name, task_description, participants, max_turns, user_proxy=None, manager=None, default_model='gpt-4o', default_azure_deployment='gpt-4o'):
+    def perform(self, chat_name, task_description, participants, max_turns, user_proxy=None, manager=None, default_model='gpt-4o', default_azure_deployment='gpt-4o', allow_early_termination=True):
         group_chats_dir = "group_chats"
         os.makedirs(group_chats_dir, exist_ok=True)
 
@@ -120,10 +125,11 @@ class AutoGenGroupChatSkill(BasicSkill):
             },
             'manager': manager or {
                 'name': 'Manager',
-                'prompt': 'You are the manager of this group chat. Ensure the group stays on task and delivers what is expected.'
+                'prompt': 'You are the manager of this group chat. Ensure the group stays on task and delivers what is expected. You can end the chat early if you believe the task is completed satisfactorily.'
             },
             'default_model': default_model,
-            'default_azure_deployment': default_azure_deployment
+            'default_azure_deployment': default_azure_deployment,
+            'allow_early_termination': allow_early_termination
         }
         with open(chat_config_file, 'w') as file:
             json.dump(chat_config, file, indent=2)
@@ -187,6 +193,17 @@ def get_llm_config(api_keys, agent_config, chat_config):
         "api_version": api_keys['azure_openai_api_version']
     }
 
+class EarlyTerminationGroupChatManager(autogen.GroupChatManager):
+    def __init__(self, allow_early_termination=True, **kwargs):
+        super().__init__(**kwargs)
+        self.allow_early_termination = allow_early_termination
+
+    def process_message(self, message, sender, silent):
+        if self.allow_early_termination and "TASK_COMPLETED" in message.upper():
+            print("Task completed. Ending the chat early.")
+            return False  # This will end the chat
+        return super().process_message(message, sender, silent)
+
 def main():
     api_keys = load_api_keys()
     chat_config = load_chat_config()
@@ -214,10 +231,11 @@ def main():
 
     manager_config = get_llm_config(api_keys, chat_config['manager'], chat_config)
     group_chat = autogen.GroupChat(agents=participants + [user_proxy], messages=[], max_round=chat_config['max_turns'])
-    manager = autogen.GroupChatManager(
+    manager = EarlyTerminationGroupChatManager(
         groupchat=group_chat,
         llm_config=manager_config,
-        system_message=chat_config['manager']['prompt']
+        system_message=chat_config['manager']['prompt'],
+        allow_early_termination=chat_config['allow_early_termination']
     )
 
     result = manager.initiate_chat(manager, message=chat_config['task_description'])
@@ -228,15 +246,15 @@ if __name__ == "__main__":
 '''
 
     def list_group_chats(self):
-        group_chats_dir = "group_chats"
-        if not os.path.exists(group_chats_dir):
-            return "No group chats have been created yet."
+            group_chats_dir = "group_chats"
+            if not os.path.exists(group_chats_dir):
+                return "No group chats have been created yet."
 
-        chats = os.listdir(group_chats_dir)
-        if not chats:
-            return "No group chats have been created yet."
+            chats = os.listdir(group_chats_dir)
+            if not chats:
+                return "No group chats have been created yet."
 
-        return "Created Group Chats:\n" + "\n".join(chats)
+            return "Created Group Chats:\n" + "\n".join(chats)
 
     def delete_group_chat(self, chat_name):
         chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
@@ -292,6 +310,7 @@ if __name__ == "__main__":
             info += f"Manager: {config['manager']['name']}\n"
             info += f"Default Model: {config['default_model']}\n"
             info += f"Default Azure Deployment: {config['default_azure_deployment']}\n"
+            info += f"Allow Early Termination: {config['allow_early_termination']}\n"
             return info
         except Exception as e:
             return f"An error occurred while retrieving group chat information: {str(e)}"
@@ -314,4 +333,27 @@ if __name__ == "__main__":
             return f"Group chat '{chat_name}' not found."
 
         os.makedirs(backup_dir, exist_ok=True)
-        backup_path
+        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+
+        try:
+            shutil.copytree(source_dir, backup_path)
+            return f"Group chat '{chat_name}' has been backed up successfully to {backup_path}."
+        except Exception as e:
+            return f"An error occurred while backing up the group chat: {str(e)}"
+
+    def restore_group_chat(self, chat_name, backup_dir="group_chat_backups"):
+        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+        if not os.path.exists(backup_path):
+            return f"Backup for group chat '{chat_name}' not found."
+
+        target_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
+
+        try:
+            if os.path.exists(target_dir):
+                shutil.rmtree(target_dir)
+            shutil.copytree(backup_path, target_dir)
+            return f"Group chat '{chat_name}' has been restored successfully from backup."
+        except Exception as e:
+            return f"An error occurred while restoring the group chat: {str(e)}"
+
+# End of AutoGenGroupChatSkill class
