@@ -203,3 +203,5 @@ ego.json
 command_pipeline.json
 unexpected_inputs.json
 /generated_stories
+response_data.json
+response_data.json
