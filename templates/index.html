@@ -488,8 +488,8 @@
             contentType: "application/json",
             data: JSON.stringify({ user_input: userInput }),
             success: function (response) {
-              var assistantResponse = response.response;
-              var skillLogs = response.skill_logs;
+              var assistantResponse = response.text;
+              var skillLogs = response.additional_output;
               var formattedResponse =
                 formatAssistantResponse(assistantResponse);
               var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> ${formattedResponse}</div>`;
