@@ -111,6 +111,12 @@
         border-radius: 18px;
         max-width: 80%;
         animation: fadeIn 0.5s ease;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .message.new {
+        opacity: 0;
+        transform: translateY(20px);
       }
 
       @keyframes fadeIn {
@@ -169,6 +175,33 @@
       #send-button:hover {
         background-color: #3a7cbd;
         transform: translateY(-2px);
+      }
+
+      #voice-input-btn {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        margin-left: 10px;
+      }
+
+      #voice-input-btn:hover {
+        background-color: #3a7cbd;
+        transform: scale(1.1);
+      }
+
+      #voice-input-btn.listening {
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
       }
 
       .example-btn {
@@ -292,6 +325,65 @@
         background-color: #e9ecef;
       }
 
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      #theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      #theme-toggle:hover {
+        transform: rotate(30deg);
+      }
+
+      body.dark-theme {
+        background-color: #1a1a1a;
+        color: #f0f0f0;
+      }
+
+      body.dark-theme #chat-container {
+        background-color: #2a2a2a;
+      }
+
+      body.dark-theme .message {
+        background-color: #3a3a3a;
+        color: #f0f0f0;
+      }
+
+      body.dark-theme .user-message {
+        background-color: var(--primary-color);
+      }
+
+      body.dark-theme #user-input {
+        background-color: #3a3a3a;
+        color: #f0f0f0;
+        border-color: #4a4a4a;
+      }
+
+      body.dark-theme .navbar {
+        background-color: #2a2a2a;
+      }
+
+      body.dark-theme .navbar-brand {
+        color: #f0f0f0;
+      }
+
       @media (max-width: 768px) {
         .container-fluid {
           padding: 10px;
@@ -397,6 +489,9 @@
     </style>
   </head>
   <body data-assistant-name="Neu">
+    <button id="theme-toggle" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
     <div class="container-fluid">
       <nav class="navbar navbar-light">
         <div class="container-fluid">
@@ -426,7 +521,10 @@
               aria-label="User input"
             />
             <button class="btn btn-primary" type="button" id="send-button">
-              <i class="fas fa-paper-plane"></i> Send
+              <i class="fas fa-paper-plane"></i> <span class="sr-only">Send</span>
+            </button>
+            <button class="btn" type="button" id="voice-input-btn" aria-label="Voice input">
+              <i class="fas fa-microphone"></i>
             </button>
           </div>
         </div>
@@ -442,6 +540,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
     <script>
       $(document).ready(function () {
         var assistantName = $("body").data("assistant-name");
@@ -466,7 +565,7 @@
           if (userInput === "") return;
 
           var userMessage = `<div class="message user-message"><strong>You:</strong> ${userInput}</div>`;
-          $("#chat-window").append(userMessage);
+          addMessageWithAnimation(userMessage);
           $("#user-input").val("");
           updateMessageHistory(userMessage);
 
@@ -490,15 +589,14 @@
             success: function (response) {
               var assistantResponse = response.text;
               var skillLogs = response.additional_output;
-              var formattedResponse =
-                formatAssistantResponse(assistantResponse);
+              var formattedResponse = formatAssistantResponse(assistantResponse);
               var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> ${formattedResponse}</div>`;
-              $("#chat-window").append(assistantMessage);
+              addMessageWithAnimation(assistantMessage);
               updateMessageHistory(assistantMessage);
 
               if (skillLogs) {
                 var skillLogsMessage = formatSkillLogs(skillLogs);
-                $("#chat-window").append(skillLogsMessage);
+                addMessageWithAnimation(skillLogsMessage);
                 updateMessageHistory(skillLogsMessage);
               }
 
@@ -507,7 +605,7 @@
             },
             error: function (xhr, status, error) {
               var errorMessage = `<div class="message error-message"><strong>Error:</strong> ${xhr.responseText}</div>`;
-              $("#chat-window").append(errorMessage);
+              addMessageWithAnimation(errorMessage);
               updateMessageHistory(errorMessage);
               scrollToBottom();
             },
@@ -515,6 +613,14 @@
               $(".loading-spinner-container").hide();
             },
           });
+        }
+
+        function addMessageWithAnimation(message) {
+          var $message = $(message).addClass('new');
+          $("#chat-window").append($message);
+          setTimeout(function() {
+            $message.removeClass('new');
+          }, 10);
         }
 
         function updateMessageHistory(message) {
@@ -677,7 +783,7 @@
                   <strong>${assistantName}:</strong> ${message.message}
                 </div>
               `;
-              $("#chat-window").append(messageHtml);
+              addMessageWithAnimation(messageHtml);
               updateMessageHistory(messageHtml);
             });
 
@@ -732,6 +838,51 @@
           var exampleMessage = $(this).data("example");
           $("#user-input").val(exampleMessage);
           sendMessage(exampleMessage);
+        });
+
+        // Voice input functionality
+        if (annyang) {
+          var commands = {
+            '*text': function(text) {
+              $('#user-input').val(text);
+              sendMessage(text);
+            }
+          };
+
+          annyang.addCommands(commands);
+
+          $('#voice-input-btn').on('click', function() {
+            if (annyang.isListening()) {
+              annyang.abort();
+              $(this).removeClass('listening');
+            } else {
+              annyang.start({ autoRestart: false, continuous: false });
+              $(this).addClass('listening');
+              showNotification('Listening...', 'info');
+            }
+          });
+
+          annyang.addCallback('result', function() {
+            $('#voice-input-btn').removeClass('listening');
+          });
+
+          annyang.addCallback('errorNetwork', function() {
+            showNotification('Network error occurred', 'error');
+            $('#voice-input-btn').removeClass('listening');
+          });
+        } else {
+          $('#voice-input-btn').prop('disabled', true).attr('title', 'Speech recognition not supported');
+        }
+
+        // Theme toggle functionality
+        $('#theme-toggle').click(function() {
+          $('body').toggleClass('dark-theme');
+          var icon = $(this).find('i');
+          if (icon.hasClass('fa-moon')) {
+            icon.removeClass('fa-moon').addClass('fa-sun');
+          } else {
+            icon.removeClass('fa-sun').addClass('fa-moon');
+          }
         });
 
         $(window).on("resize orientationchange", adjustLayout);
