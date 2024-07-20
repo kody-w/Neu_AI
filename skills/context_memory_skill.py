@@ -2,9 +2,10 @@ import json
 import os
 from skills.basic_skill import BasicSkill
 
-class LongTermMemorySkill(BasicSkill):
+
+class ContextMemorySkill(BasicSkill):
     def __init__(self):
-        self.name = 'LongTermMemory'
+        self.name = 'ContextMemory'
         self.metadata = {
             "name": self.name,
             "description": "Recalls and provides context based on stored memories of the past interactions with the user.",
@@ -18,13 +19,13 @@ class LongTermMemorySkill(BasicSkill):
     def _recall_context(self):
         if not os.path.exists(self.storage_file):
             return "I don't have any memories stored yet."
-        
+
         with open(self.storage_file, 'r') as file:
             memories = json.load(file)
-        
+
         if not memories:
             return "I remember storing some information, but it seems to be empty now."
-        
+
         context_summary = self._generate_context_summary(memories)
         return context_summary
 
@@ -37,5 +38,5 @@ class LongTermMemorySkill(BasicSkill):
         return "Here's what I remember: " + " ".join(summaries)
 
 # Example usage:
-# context_memory_skill = LongTermMemorySkill()
+# context_memory_skill = ContextMemorySkill()
 # print(context_memory_skill.perform())
