@@ -16,9 +16,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css"
     />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
     <style>
       :root {
         --primary-color: #4a90e2;
@@ -286,6 +283,15 @@
         text-decoration: underline;
       }
 
+      .clickable-message {
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .clickable-message:hover {
+        background-color: #e9ecef;
+      }
+
       @media (max-width: 768px) {
         .container-fluid {
           padding: 10px;
@@ -433,13 +439,30 @@
       </main>
     </div>
     <div class="notification" id="notification"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
     <script>
       $(document).ready(function () {
         var assistantName = $("body").data("assistant-name");
         var messageHistory = [];
 
-        function sendMessage() {
-          var userInput = $("#user-input").val().trim();
+        function saveMessageHistory() {
+          localStorage.setItem("chatHistory", JSON.stringify(messageHistory));
+        }
+
+        function loadMessageHistory() {
+          var savedHistory = localStorage.getItem("chatHistory");
+          if (savedHistory) {
+            messageHistory = JSON.parse(savedHistory);
+            messageHistory.forEach(function (message) {
+              $("#chat-window").append(message);
+            });
+            scrollToBottom();
+          }
+        }
+
+        function sendMessage(userInput) {
           if (userInput === "") return;
 
           var userMessage = `<div class="message user-message"><strong>You:</strong> ${userInput}</div>`;
@@ -499,6 +522,7 @@
           if (messageHistory.length > 50) {
             messageHistory.shift();
           }
+          saveMessageHistory();
         }
 
         function formatAssistantResponse(response) {
@@ -565,6 +589,7 @@
         function clearChat() {
           $("#chat-window").empty();
           messageHistory = [];
+          localStorage.removeItem("chatHistory");
           showNotification("Chat cleared", "success");
         }
 
@@ -601,12 +626,14 @@
           }
         }
 
-        $("#send-button").click(sendMessage);
+        $("#send-button").click(function () {
+          sendMessage($("#user-input").val().trim());
+        });
 
         $("#user-input").keypress(function (event) {
           if (event.which === 13) {
             event.preventDefault();
-            sendMessage();
+            sendMessage($(this).val().trim());
           }
         });
 
@@ -616,6 +643,54 @@
           $(this).hide();
           $(this).siblings(".remaining-skills").show();
           scrollToBottom();
+        });
+
+        function addInitialMessages() {
+          if (messageHistory.length === 0) {
+            var initialMessages = [
+              {
+                message: `Hello! I'm ${assistantName}, your AI assistant. How can I help you today?`,
+                prompt: "Hello! Can you tell me more about yourself?",
+              },
+              {
+                message: "Here are some ways we can get started:",
+                prompt: "",
+              },
+              {
+                message:
+                  "1. Ask me about my capabilities and how I can assist you.",
+                prompt: "What are your capabilities and how can you assist me?",
+              },
+              {
+                message: "2. Ask me about what I know from past interactions.",
+                prompt: "What do you know from our past interactions?",
+              },
+              {
+                message: "3. Ask me who I know from your past interactions.",
+                prompt: "Who do you know from our past interactions?",
+              },
+            ];
+
+            initialMessages.forEach(function (message) {
+              var messageHtml = `
+                <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
+                  <strong>${assistantName}:</strong> ${message.message}
+                </div>
+              `;
+              $("#chat-window").append(messageHtml);
+              updateMessageHistory(messageHtml);
+            });
+
+            scrollToBottom();
+          }
+        }
+
+        $(document).on("click", ".clickable-message", function () {
+          var prompt = $(this).data("prompt");
+          if (prompt) {
+            $("#user-input").val(prompt);
+            sendMessage(prompt);
+          }
         });
 
         var examplePrompts = [
@@ -647,7 +722,7 @@
           },
         ];
 
-        examplePrompts.forEach(function (prompt, index) {
+        examplePrompts.forEach(function (prompt) {
           $("#example-buttons").append(
             `<button class="btn example-btn" data-example="${prompt.text}" title="${prompt.text}">${prompt.emoji}</button>`
           );
@@ -656,30 +731,12 @@
         $(document).on("click", ".example-btn", function () {
           var exampleMessage = $(this).data("example");
           $("#user-input").val(exampleMessage);
-          sendMessage();
+          sendMessage(exampleMessage);
         });
 
         $(window).on("resize orientationchange", adjustLayout);
 
-        $('[data-toggle="tooltip"]').tooltip();
-
-        function addInitialMessages() {
-          var initialMessages = [
-            `<div class="message assistant-message"><strong>${assistantName}:</strong> Hello! I'm ${assistantName}, your AI assistant. How can I help you today?</div>`,
-            `<div class="message assistant-message"><strong>${assistantName}:</strong> Here are some ways we can get started:</div>`,
-            `<div class="message assistant-message"><strong>${assistantName}:</strong> 1. Ask me about my capabilities and how I can assist you.</div>`,
-            `<div class="message assistant-message"><strong>${assistantName}:</strong> 2. Ask me about what I know from past interactions.</div>`,
-            `<div class="message assistant-message"><strong>${assistantName}:</strong> 3. Ask me who I know from your past interactions.</div>`,
-          ];
-
-          initialMessages.forEach(function (message) {
-            $("#chat-window").append(message);
-            updateMessageHistory(message);
-          });
-
-          scrollToBottom();
-        }
-
+        loadMessageHistory();
         setTimeout(addInitialMessages, 1000);
 
         adjustLayout();
