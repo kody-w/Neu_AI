@@ -205,3 +205,5 @@ unexpected_inputs.json
 /generated_stories
 response_data.json
 response_data.json
+/user_snapshots
+lab/config/api_keys.json

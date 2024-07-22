@@ -1,0 +1,9 @@
+{
+  "openai": "sk-",
+  "azure_openai_endpoint": "https://.openai.azure.com/",
+  "azure_openai_api_key": "",
+  "azure_openai_api_version": "2024-02-15-preview",
+  "dalle_azure_endpoint": "https://.openai.azure.com",
+  "dalle_api_key": "",
+  "dalle_api_version": "2024-02-01"
+}
