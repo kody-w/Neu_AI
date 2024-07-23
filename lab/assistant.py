@@ -76,7 +76,7 @@ class Assistant():
             if message["role"] == "function":
                 formatted_message = {
                     "role": "function",
-                    "name": message.get("name", "unknown_function"),
+                    "name": message.get("name", "unknown_function"),  # Provide a default name if missing
                     "content": message["content"]
                 }
             else:
@@ -138,7 +138,7 @@ class Assistant():
                     f"Performed {skill_name} and got the following result: {result}")
 
                 self.add_msg_to_transcript("function", result, name=skill_name)
-
+                
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:
