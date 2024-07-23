@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌📞 Neu AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .hero-section {
+            background-color: #f8f9fa;
+            padding: 100px 0;
+            text-align: center;
+            color: #6bff8e;
+        }
+        .hero-section h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .spinner-banana {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .spinner-banana:after {
+            content: "🌎🌎🌎";
+            display: block;
+            font-size: 40px;
+            animation: spinner-banana 1.2s linear infinite;
+        }
+        @keyframes spinner-banana {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #chat-window {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e6f3ff;
+            text-align: right;
+        }
+        .assistant-message {
+            background-color: #f0f0f0;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" id="home-link">🍌📞 Neu AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home" data-bs-toggle="tab">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#memory" data-bs-toggle="tab">Memory Lane</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#feed" data-bs-toggle="tab">News Feed</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1>👋 Hello! I am {{ assistant_name }}</h1>
+            <h3>Your AI assistant, ready to help!</h3>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="tab-content" role="main">
+            <div id="home" class="tab-pane fade show active">
+                <p>You are currently speaking with <strong>{{ assistant_name }}</strong>, your Personal assistant! 😎</p>
+                
+                <div id="welcome-message" class="dynamic-content"></div>
+                
+                <div id="loading-indicator" class="d-none text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p>Loading content...</p>
+                </div>
+                
+                <div id="chat-window" class="mb-3"></div>
+                
+                <div class="loading-spinner-container" style="display: none;">
+                    <div class="spinner-banana" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                
+                <div class="input-group mb-3">
+                    <input type="text" id="user-input" class="form-control" placeholder="Type your message...">
+                    <button class="btn btn-primary" type="button" id="send-button">Send</button>
+                    <button class="btn btn-secondary" type="button" id="analyze-intent">🔮</button>
+                </div>
+                
+                <div class="d-flex align-items-center mt-3">
+                    <div id="example-buttons" class="mr-3">
+                        <button class="btn btn-outline-secondary btn-sm">🧠💡</button>
+                        <button class="btn btn-outline-secondary btn-sm">💼📈</button>
+                        <button class="btn btn-outline-secondary btn-sm">👨‍👩‍👧‍👦❤️</button>
+                    </div>
+                    <div class="button-group ml-auto">
+                        <button id="export-button" class="btn btn-info">Export</button>
+                        <button id="clear-chat" class="btn btn-warning">Clear Chat</button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3>Upload Conversation Log</h3>
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="file" class="form-control-file" id="conversation-log" name="conversation_log" accept=".html">
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Upload</button>
+                    </form>
+                </div>
+
+                <div id="interaction-record" class="mt-4">
+                    <h2>Interaction Record</h2>
+                    <div id="dynamic-content"></div>
+                </div>
+
+                <div id="skill-logs" class="mt-4"></div>
+            </div>
+
+            <div id="memory" class="tab-pane fade">
+                <h2>My Memories</h2>
+                <button id="load-memories" class="btn btn-primary mb-3">Load Memories</button>
+                <div id="memories-content" class="mt-3"></div>
+            </div>
+
+            <div id="feed" class="tab-pane fade">
+                <h2>News Feed</h2>
+                <ul class="list-group" id="news-feed-list">
+                    <!-- News feed items will be dynamically inserted here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let chatMessages = [];
+
+            // Function to add a message to the chat window
+            function addMessageToChat(message, isUser) {
+                const messageDiv = $('<div>').addClass('message').addClass(isUser ? 'user-message' : 'assistant-message');
+                messageDiv.text(message);
+                $('#chat-window').append(messageDiv);
+                $('#chat-window').scrollTop($('#chat-window')[0].scrollHeight);
+                chatMessages.push({ role: isUser ? 'user' : 'assistant', content: message });
+            }
+
+            // Send button click event
+            $('#send-button').click(function() {
+                const userInput = $('#user-input').val().trim();
+                if (userInput) {
+                    addMessageToChat(userInput, true);
+                    $('#user-input').val('');
+                    $('.loading-spinner-container').show();
+
+                    // AJAX call to send message to backend
+                    $.ajax({
+                        url: '/api/chat',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ user_input: userInput }),
+                        success: function(response) {
+                            $('.loading-spinner-container').hide();
+                            addMessageToChat(response.text, false);
+                            if (response.additional_output) {
+                                $('#skill-logs').append('<p>' + response.additional_output + '</p>');
+                            }
+                        },
+                        error: function() {
+                            $('.loading-spinner-container').hide();
+                            showNotification('Error occurred while processing your request.', 'error');
+                        }
+                    });
+                }
+            });
+
+            // Analyze intent button click event
+            $('#analyze-intent').click(function() {
+                // Implement intent analysis functionality
+                showNotification('Intent analysis feature coming soon!', 'info');
+            });
+
+            // Example buttons click events
+            $('#example-buttons button').click(function() {
+                const buttonText = $(this).text();
+                $('#user-input').val(buttonText);
+            });
+
+            // Export button click event
+            $('#export-button').click(function() {
+                const chatContent = chatMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+                const blob = new Blob([chatContent], { type: 'text/plain' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'chat_export.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+
+            // Clear chat button click event
+            $('#clear-chat').click(function() {
+                $('#chat-window').empty();
+                chatMessages = [];
+                showNotification('Chat cleared successfully!', 'success');
+            });
+
+            // Load memories button click event
+            $('#load-memories').click(function() {
+                $.ajax({
+                    url: '/load_memories',
+                    method: 'GET',
+                    success: function(response) {
+                        $('#memories-content').empty();
+                        for (const key in response) {
+                            $('#memories-content').append('<p><strong>' + key + ':</strong> ' + response[key] + '</p>');
+                        }
+                    },
+                    error: function() {
+                        showNotification('Error occurred while loading memories.', 'error');
+                    }
+                });
+            });
+
+            // Upload conversation log form submit event
+            $('#upload-form').submit(function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                $.ajax({
+                    url: '/upload_conversation_log',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        showNotification('Conversation log uploaded successfully!', 'success');
+                    },
+                    error: function() {
+                        showNotification('Error occurred while uploading conversation log.', 'error');
+                    }
+                });
+            });
+
+            // Function to show notification
+            function showNotification(message, type) {
+                const notification = $('#notification');
+                notification.text(message);
+                notification.css('background-color', type === 'error' ? '#f44336' : '#4CAF50');
+                notification.fadeIn().delay(3000).fadeOut();
+            }
+
+            // Load initial welcome message
+            $.get('/get_dynamic_content', function(data) {
+                $('#welcome-message').html(data);
+            });
+
+            // Load news feed
+            function loadNewsFeed() {
+                $.ajax({
+                    url: '/get_news_feed',  // You need to implement this endpoint in your Flask app
+                    method: 'GET',
+                    success: function(response) {
+                        $('#news-feed-list').empty();
+                        response.forEach(function(entry) {
+                            $('#news-feed-list').append(`
+                                <li class="list-group-item">
+                                    <a href="${entry.link}" target="_blank">${entry.title}</a>
+                                    <p>${entry.summary}</p>
+                                </li>
+                            `);
+                        });
+                    },
+                    error: function() {
+                        showNotification('Error occurred while loading news feed.', 'error');
+                    }
+                });
+            }
+
+            // Load news feed on tab change
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.getAttribute('href') === '#feed') {
+                    loadNewsFeed();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
