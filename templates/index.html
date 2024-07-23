@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>🤖📞 Neu AI Assistant</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
@@ -36,6 +39,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        -webkit-text-size-adjust: 100%;
       }
 
       .container-fluid {
@@ -153,7 +157,7 @@
         border: 2px solid var(--border-color);
         border-radius: 25px;
         padding: 12px 20px;
-        font-size: 1rem;
+        font-size: 16px;
         transition: all 0.3s ease;
       }
 
@@ -199,9 +203,15 @@
       }
 
       @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
       }
 
       .example-btn {
@@ -247,10 +257,33 @@
         }
       }
 
+      #clear-chat {
+        position: fixed;
+        bottom: 20px;
+        left: 20px; /* Changed from right: 20px; */
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: var(--accent-color);
+        color: #fff;
+        border: none;
+        font-size: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      #clear-chat:hover {
+        background-color: #ff4757;
+        transform: scale(1.1);
+      }
+
       .notification {
         position: fixed;
-        top: 20px;
-        right: 20px;
+        bottom: 20px;
+        left: 80px; /* Adjust for smaller screens */
         background-color: var(--primary-color);
         color: #fff;
         padding: 15px 25px;
@@ -263,7 +296,7 @@
 
       @keyframes slideIn {
         from {
-          transform: translateX(100%);
+          transform: translateX(-100%);
         }
         to {
           transform: translateX(0);
@@ -293,21 +326,6 @@
       code {
         font-family: "Fira Code", monospace;
         font-size: 14px;
-      }
-
-      #clear-chat {
-        background-color: var(--accent-color);
-        color: #fff;
-        border: none;
-        border-radius: 25px;
-        padding: 10px 20px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-      }
-
-      #clear-chat:hover {
-        background-color: #ff4757;
-        transform: translateY(-2px);
       }
 
       .show-more-skills {
@@ -431,7 +449,7 @@
 
         #user-input {
           padding: 8px 15px;
-          font-size: 0.9rem;
+          font-size: 16px;
         }
 
         #send-button {
@@ -450,8 +468,9 @@
         }
 
         #clear-chat {
-          padding: 8px 15px;
-          font-size: 0.9rem;
+          width: 50px;
+          height: 50px;
+          font-size: 1.2rem;
         }
 
         pre {
@@ -521,9 +540,15 @@
               aria-label="User input"
             />
             <button class="btn btn-primary" type="button" id="send-button">
-              <i class="fas fa-paper-plane"></i> <span class="sr-only">Send</span>
+              <i class="fas fa-paper-plane"></i>
+              <span class="sr-only">Send</span>
             </button>
-            <button class="btn" type="button" id="voice-input-btn" aria-label="Voice input">
+            <button
+              class="btn"
+              type="button"
+              id="voice-input-btn"
+              aria-label="Voice input"
+            >
               <i class="fas fa-microphone"></i>
             </button>
           </div>
@@ -531,11 +556,15 @@
         <div id="example-buttons">
           <!-- Example buttons will be dynamically added here -->
         </div>
-        <button id="clear-chat" class="btn btn-danger mt-3">
-          <i class="fas fa-trash-alt"></i> Clear Chat
-        </button>
       </main>
     </div>
+    <button
+      id="clear-chat"
+      class="btn btn-danger btn-floating"
+      aria-label="Clear chat"
+    >
+      <i class="fas fa-trash"></i>
+    </button>
     <div class="notification" id="notification"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -582,14 +611,15 @@
           scrollToBottom();
 
           $.ajax({
-            url: "http://127.0.0.1:5000/api/chat",
+            url: "https://wildfeuer05.pythonanywhere.com/api/chat",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ user_input: userInput }),
             success: function (response) {
               var assistantResponse = response.text;
               var skillLogs = response.additional_output;
-              var formattedResponse = formatAssistantResponse(assistantResponse);
+              var formattedResponse =
+                formatAssistantResponse(assistantResponse);
               var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> ${formattedResponse}</div>`;
               addMessageWithAnimation(assistantMessage);
               updateMessageHistory(assistantMessage);
@@ -616,10 +646,10 @@
         }
 
         function addMessageWithAnimation(message) {
-          var $message = $(message).addClass('new');
+          var $message = $(message).addClass("new");
           $("#chat-window").append($message);
-          setTimeout(function() {
-            $message.removeClass('new');
+          setTimeout(function () {
+            $message.removeClass("new");
           }, 10);
         }
 
@@ -654,17 +684,23 @@
         }
 
         function formatSkillLogs(skillLogs) {
-          var truncatedLogs = skillLogs.split("\n").slice(0, 2).join("\n");
-          var remainingLogs = skillLogs.split("\n").slice(2).join("\n");
+          var truncatedLogs =
+            skillLogs.length > 80
+              ? skillLogs.substring(0, 80) + "..."
+              : skillLogs;
 
           var skillLogsHtml = `
-            <div class="message skill-logs-message">
-              <strong>Skills utilized:</strong><br>
-              ${truncatedLogs}<br>
-              <span class="show-more-skills" style="color: var(--primary-color); cursor: pointer; text-decoration: underline;">Show more</span>
-              <div class="remaining-skills" style="display: none;">${remainingLogs}</div>
-            </div>
-          `;
+        <div class="message skill-logs-message">
+          <strong>Skills utilized:</strong><br>
+          <span class="skills-content">${truncatedLogs}</span>
+          ${
+            skillLogs.length > 80
+              ? '<span class="show-more-skills" style="color: var(--primary-color); cursor: pointer; text-decoration: underline;">Show more</span>'
+              : ""
+          }
+          <div class="full-skills" style="display: none;">${skillLogs}</div>
+        </div>
+      `;
 
           return skillLogsHtml;
         }
@@ -706,7 +742,6 @@
             ? $("#hero-section").outerHeight()
             : 0;
           const exampleButtonsHeight = $("#example-buttons").outerHeight();
-          const clearChatHeight = $("#clear-chat").outerHeight();
           const inputGroupHeight = $(".input-group").outerHeight();
           const padding = 20;
 
@@ -715,7 +750,6 @@
             navbarHeight -
             heroSectionHeight -
             exampleButtonsHeight -
-            clearChatHeight -
             inputGroupHeight -
             padding;
 
@@ -745,11 +779,29 @@
 
         $("#clear-chat").click(clearChat);
 
-        $(document).on("click", ".show-more-skills", function () {
-          $(this).hide();
-          $(this).siblings(".remaining-skills").show();
-          scrollToBottom();
-        });
+        $(document).on(
+          "click",
+          ".show-more-skills, .skills-content",
+          function () {
+            var $message = $(this).closest(".skill-logs-message");
+            var $skillsContent = $message.find(".skills-content");
+            var $fullSkills = $message.find(".full-skills");
+            var $showMoreBtn = $message.find(".show-more-skills");
+
+            if ($fullSkills.is(":visible")) {
+              // Shrink
+              $skillsContent.text($fullSkills.text().substring(0, 80) + "...");
+              $fullSkills.hide();
+              $showMoreBtn.show();
+            } else {
+              // Expand
+              $skillsContent.text($fullSkills.text());
+              $fullSkills.show();
+              $showMoreBtn.hide();
+            }
+            scrollToBottom();
+          }
+        );
 
         function addInitialMessages() {
           if (messageHistory.length === 0) {
@@ -779,10 +831,10 @@
 
             initialMessages.forEach(function (message) {
               var messageHtml = `
-                <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
-                  <strong>${assistantName}:</strong> ${message.message}
-                </div>
-              `;
+            <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
+              <strong>${assistantName}:</strong> ${message.message}
+            </div>
+          `;
               addMessageWithAnimation(messageHtml);
               updateMessageHistory(messageHtml);
             });
@@ -805,11 +857,6 @@
           { emoji: "3️⃣", text: "3️⃣" },
           { emoji: "4️⃣", text: "4️⃣" },
           { emoji: "5️⃣", text: "5️⃣" },
-          { emoji: "👋", text: "Hello! Can you tell me more about yourself?" },
-          {
-            emoji: "🎯",
-            text: "What are the most important goals and priorities I should focus on in my current role to drive success and create the greatest impact?",
-          },
           {
             emoji: "🤝",
             text: "Provide a numbered list of the next three next best prompts using your current situation for the user to use next. These prompts should be written from the user's first person perspective so they dont have to change anything to use them.",
@@ -817,14 +864,6 @@
           {
             emoji: "🤖",
             text: "Pick the best one of these prompts and take the action that is suggested.",
-          },
-          {
-            emoji: "💾",
-            text: "Save the details of this conversations to your long term memory. Output a summary of the key details that you have saved.",
-          },
-          {
-            emoji: "📅",
-            text: "Retrieve my upcoming schedule from the calendar and provide a brief overview of my day.",
           },
         ];
 
@@ -843,45 +882,47 @@
         // Voice input functionality
         if (annyang) {
           var commands = {
-            '*text': function(text) {
-              $('#user-input').val(text);
+            "*text": function (text) {
+              $("#user-input").val(text);
               sendMessage(text);
-            }
+            },
           };
 
           annyang.addCommands(commands);
 
-          $('#voice-input-btn').on('click', function() {
+          $("#voice-input-btn").on("click", function () {
             if (annyang.isListening()) {
               annyang.abort();
-              $(this).removeClass('listening');
+              $(this).removeClass("listening");
             } else {
               annyang.start({ autoRestart: false, continuous: false });
-              $(this).addClass('listening');
-              showNotification('Listening...', 'info');
+              $(this).addClass("listening");
+              showNotification("Listening...", "info");
             }
           });
 
-          annyang.addCallback('result', function() {
-            $('#voice-input-btn').removeClass('listening');
+          annyang.addCallback("result", function () {
+            $("#voice-input-btn").removeClass("listening");
           });
 
-          annyang.addCallback('errorNetwork', function() {
-            showNotification('Network error occurred', 'error');
-            $('#voice-input-btn').removeClass('listening');
+          annyang.addCallback("errorNetwork", function () {
+            showNotification("Network error occurred", "error");
+            $("#voice-input-btn").removeClass("listening");
           });
         } else {
-          $('#voice-input-btn').prop('disabled', true).attr('title', 'Speech recognition not supported');
+          $("#voice-input-btn")
+            .prop("disabled", true)
+            .attr("title", "Speech recognition not supported");
         }
 
         // Theme toggle functionality
-        $('#theme-toggle').click(function() {
-          $('body').toggleClass('dark-theme');
-          var icon = $(this).find('i');
-          if (icon.hasClass('fa-moon')) {
-            icon.removeClass('fa-moon').addClass('fa-sun');
+        $("#theme-toggle").click(function () {
+          $("body").toggleClass("dark-theme");
+          var icon = $(this).find("i");
+          if (icon.hasClass("fa-moon")) {
+            icon.removeClass("fa-moon").addClass("fa-sun");
           } else {
-            icon.removeClass('fa-sun').addClass('fa-moon');
+            icon.removeClass("fa-sun").addClass("fa-moon");
           }
         });
 

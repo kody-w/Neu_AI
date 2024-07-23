@@ -42,7 +42,14 @@ class WebInterfaceSimulationSkill(BasicSkill):
             response = requests.post(self.api_url, json={"user_input": message})
             response.raise_for_status()
             result = response.json()
-            return f"Message sent successfully. Assistant's response: {result['response']}"
+            assistant_response = result.get('text', '')
+            additional_output = result.get('additional_output', '')
+            
+            response_text = f"Message sent successfully. Assistant's response: {assistant_response}"
+            if additional_output:
+                response_text += f"\nAdditional output: {additional_output}"
+            
+            return response_text
         except requests.RequestException as e:
             return f"Error sending message: {str(e)}"
 
