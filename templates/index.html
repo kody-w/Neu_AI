@@ -260,7 +260,7 @@
       #clear-chat {
         position: fixed;
         bottom: 20px;
-        left: 20px; /* Changed from right: 20px; */
+        left: 20px;
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -283,7 +283,7 @@
       .notification {
         position: fixed;
         bottom: 20px;
-        left: 80px; /* Adjust for smaller screens */
+        left: 80px;
         background-color: var(--primary-color);
         color: #fff;
         padding: 15px 25px;
@@ -400,6 +400,15 @@
 
       body.dark-theme .navbar-brand {
         color: #f0f0f0;
+      }
+
+      .message a {
+        color: #0066cc;
+        text-decoration: underline;
+      }
+
+      .message a:hover {
+        text-decoration: none;
       }
 
       @media (max-width: 768px) {
@@ -573,18 +582,21 @@
     <script>
       $(document).ready(function () {
         var assistantName = $("body").data("assistant-name");
-        var messageHistory = [];
+        var conversationHistory = [];
 
         function saveMessageHistory() {
-          localStorage.setItem("chatHistory", JSON.stringify(messageHistory));
+          localStorage.setItem(
+            "chatHistory",
+            JSON.stringify(conversationHistory)
+          );
         }
 
         function loadMessageHistory() {
           var savedHistory = localStorage.getItem("chatHistory");
           if (savedHistory) {
-            messageHistory = JSON.parse(savedHistory);
-            messageHistory.forEach(function (message) {
-              $("#chat-window").append(message);
+            conversationHistory = JSON.parse(savedHistory);
+            conversationHistory.forEach(function (message) {
+              $("#chat-window").append(message.content);
             });
             scrollToBottom();
           }
@@ -596,7 +608,7 @@
           var userMessage = `<div class="message user-message"><strong>You:</strong> ${userInput}</div>`;
           addMessageWithAnimation(userMessage);
           $("#user-input").val("");
-          updateMessageHistory(userMessage);
+          updateMessageHistory("user", userMessage);
 
           $(".loading-spinner-container").show();
 
@@ -611,23 +623,28 @@
           scrollToBottom();
 
           $.ajax({
-            url: "https://wildfeuer05.pythonanywhere.com/api/chat",
+            url: "/api/chat",
             type: "POST",
             contentType: "application/json",
-            data: JSON.stringify({ user_input: userInput }),
+            data: JSON.stringify({
+              user_input: userInput,
+              conversation_history: conversationHistory,
+            }),
             success: function (response) {
               var assistantResponse = response.text;
               var skillLogs = response.additional_output;
+              conversationHistory = response.conversation_history;
+
               var formattedResponse =
                 formatAssistantResponse(assistantResponse);
               var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> ${formattedResponse}</div>`;
               addMessageWithAnimation(assistantMessage);
-              updateMessageHistory(assistantMessage);
+              updateMessageHistory("assistant", assistantMessage);
 
               if (skillLogs) {
                 var skillLogsMessage = formatSkillLogs(skillLogs);
                 addMessageWithAnimation(skillLogsMessage);
-                updateMessageHistory(skillLogsMessage);
+                updateMessageHistory("system", skillLogsMessage);
               }
 
               scrollToBottom();
@@ -636,7 +653,7 @@
             error: function (xhr, status, error) {
               var errorMessage = `<div class="message error-message"><strong>Error:</strong> ${xhr.responseText}</div>`;
               addMessageWithAnimation(errorMessage);
-              updateMessageHistory(errorMessage);
+              updateMessageHistory("system", errorMessage);
               scrollToBottom();
             },
             complete: function () {
@@ -653,34 +670,48 @@
           }, 10);
         }
 
-        function updateMessageHistory(message) {
-          messageHistory.push(message);
-          if (messageHistory.length > 50) {
-            messageHistory.shift();
+        function updateMessageHistory(role, content) {
+          conversationHistory.push({ role: role, content: content });
+          if (conversationHistory.length > 50) {
+            conversationHistory.shift();
           }
           saveMessageHistory();
         }
 
         function formatAssistantResponse(response) {
-          return response
-            .replace(/### (.*)/g, "<h3>$1</h3>")
-            .replace(/- (.*)/g, "<li>$1</li>")
-            .replace(/<li>(.*?)<\/li>/g, function (match, content) {
-              return content.startsWith("**") && content.endsWith("**")
-                ? "<li><strong>" + content.slice(2, -2) + "</strong></li>"
-                : match;
-            })
-            .replace(/<li>/g, "<ul><li>")
-            .replace(/<\/li>/g, "</li></ul>")
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            .replace(
-              /```(\w+)?\n([\s\S]+?)```/g,
-              function (match, language, code) {
-                return `<pre><code class="${
-                  language || ""
-                }">${code.trim()}</code></pre>`;
-              }
-            );
+          if (!response) {
+            console.error("Received undefined response from server");
+            return "I'm sorry, I encountered an error while processing your request.";
+          }
+
+          try {
+            return response
+              .replace(/### (.*)/g, "<h3>$1</h3>")
+              .replace(/- (.*)/g, "<li>$1</li>")
+              .replace(/<li>(.*?)<\/li>/g, function (match, content) {
+                return content.startsWith("**") && content.endsWith("**")
+                  ? "<li><strong>" + content.slice(2, -2) + "</strong></li>"
+                  : match;
+              })
+              .replace(/<li>/g, "<ul><li>")
+              .replace(/<\/li>/g, "</li></ul>")
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(
+                /```(\w+)?\n([\s\S]+?)```/g,
+                function (match, language, code) {
+                  return `<pre><code class="${
+                    language || ""
+                  }">${code.trim()}</code></pre>`;
+                }
+              )
+              .replace(
+                /\[([^\]]+)\]\(([^\)]+)\)/g,
+                '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+              );
+          } catch (error) {
+            console.error("Error formatting assistant response:", error);
+            return "I'm sorry, I encountered an error while formatting my response.";
+          }
         }
 
         function formatSkillLogs(skillLogs) {
@@ -730,7 +761,7 @@
 
         function clearChat() {
           $("#chat-window").empty();
-          messageHistory = [];
+          conversationHistory = [];
           localStorage.removeItem("chatHistory");
           showNotification("Chat cleared", "success");
         }
@@ -804,7 +835,7 @@
         );
 
         function addInitialMessages() {
-          if (messageHistory.length === 0) {
+          if (conversationHistory.length === 0) {
             var initialMessages = [
               {
                 message: `Hello! I'm ${assistantName}, your AI assistant. How can I help you today?`,
@@ -836,7 +867,7 @@
             </div>
           `;
               addMessageWithAnimation(messageHtml);
-              updateMessageHistory(messageHtml);
+              updateMessageHistory("assistant", messageHtml);
             });
 
             scrollToBottom();
@@ -852,11 +883,11 @@
         });
 
         var examplePrompts = [
-          { emoji: "1️⃣", text: "1️⃣" },
-          { emoji: "2️⃣", text: "2️⃣" },
-          { emoji: "3️⃣", text: "3️⃣" },
-          { emoji: "4️⃣", text: "4️⃣" },
-          { emoji: "5️⃣", text: "5️⃣" },
+          { emoji: "1️⃣", text: "1" },
+          { emoji: "2️⃣", text: "2" },
+          { emoji: "3️⃣", text: "3" },
+          { emoji: "4️⃣", text: "4" },
+          { emoji: "5️⃣", text: "5" },
           {
             emoji: "🤝",
             text: "Provide a numbered list of the next three next best prompts using your current situation for the user to use next. These prompts should be written from the user's first person perspective so they dont have to change anything to use them.",

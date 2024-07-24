@@ -611,7 +611,7 @@
           scrollToBottom();
 
           $.ajax({
-            url: "https://wildfeuer05.pythonanywhere.com/api/chat",
+            url: "http://127.0.0.1:5000/api/chat",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ user_input: userInput }),
