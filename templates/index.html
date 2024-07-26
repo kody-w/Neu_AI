@@ -411,6 +411,51 @@
         text-decoration: none;
       }
 
+      #image-upload-container {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      #image-upload {
+        display: none;
+      }
+
+      #image-upload-label {
+        cursor: pointer;
+        padding: 8px 15px;
+        background-color: var(--secondary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+      }
+
+      #image-upload-label:hover {
+        background-color: var(--primary-color);
+        color: #fff;
+      }
+
+      #analyze-image-btn {
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+      }
+
+      #analyze-image-btn:hover {
+        background-color: #3a7cbd;
+      }
+
+      #image-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        display: none;
+      }
+
       @media (max-width: 768px) {
         .container-fluid {
           padding: 10px;
@@ -561,6 +606,16 @@
               <i class="fas fa-microphone"></i>
             </button>
           </div>
+          <div id="image-upload-container">
+            <label for="image-upload" id="image-upload-label">
+              <i class="fas fa-image"></i> Upload Image
+            </label>
+            <input type="file" id="image-upload" accept="image/*" />
+            <button id="analyze-image-btn" style="display: none">
+              Analyze Image
+            </button>
+          </div>
+          <img id="image-preview" alt="Image preview" />
         </div>
         <div id="example-buttons">
           <!-- Example buttons will be dynamically added here -->
@@ -774,6 +829,9 @@
             : 0;
           const exampleButtonsHeight = $("#example-buttons").outerHeight();
           const inputGroupHeight = $(".input-group").outerHeight();
+          const imageUploadContainerHeight = $(
+            "#image-upload-container"
+          ).outerHeight();
           const padding = 20;
 
           const availableHeight =
@@ -782,12 +840,17 @@
             heroSectionHeight -
             exampleButtonsHeight -
             inputGroupHeight -
+            imageUploadContainerHeight -
             padding;
 
           $("#chat-container").css("height", availableHeight + "px");
           $("#chat-window").css(
             "height",
-            availableHeight - inputGroupHeight - padding + "px"
+            availableHeight -
+              inputGroupHeight -
+              imageUploadContainerHeight -
+              padding +
+              "px"
           );
 
           if ($(window).width() <= 576) {
@@ -955,6 +1018,53 @@
           } else {
             icon.removeClass("fa-sun").addClass("fa-moon");
           }
+        });
+
+        // Image upload and analysis functionality
+        $("#image-upload").on("change", function (event) {
+          var file = event.target.files[0];
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              $("#image-preview").attr("src", e.target.result).show();
+              $("#analyze-image-btn").show();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        $("#analyze-image-btn").on("click", function () {
+          var formData = new FormData();
+          formData.append("image", $("#image-upload")[0].files[0]);
+
+          $.ajax({
+            url: "/api/analyze-image",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+              $(".loading-spinner-container").show();
+            },
+            success: function (response) {
+              var analysisMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> Here's my analysis of the image: ${response.analysis}</div>`;
+              addMessageWithAnimation(analysisMessage);
+              updateMessageHistory("assistant", analysisMessage);
+              scrollToBottom();
+            },
+            error: function (xhr, status, error) {
+              var errorMessage = `<div class="message error-message"><strong>Error:</strong> Failed to analyze the image. ${xhr.responseText}</div>`;
+              addMessageWithAnimation(errorMessage);
+              updateMessageHistory("system", errorMessage);
+              scrollToBottom();
+            },
+            complete: function () {
+              $(".loading-spinner-container").hide();
+              $("#image-preview").hide();
+              $("#analyze-image-btn").hide();
+              $("#image-upload").val("");
+            },
+          });
         });
 
         $(window).on("resize orientationchange", adjustLayout);

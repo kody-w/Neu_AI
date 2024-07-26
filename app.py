@@ -1,13 +1,18 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_from_directory
 from assistant import Assistant
 import json
 import os
 import importlib
 import inspect
 from skills.basic_skill import BasicSkill
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.static_folder = 'static'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+
+# Ensure the upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Load assistant configuration
 with open('config.json', 'r') as config_file:
@@ -72,6 +77,31 @@ def chat():
             'additional_output': str(e),
             'conversation_history': conversation_history
         }), 500
+
+@app.route('/api/analyze-image', methods=['POST'])
+def analyze_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        analyze_image_skill = next((skill for skill in declared_skills if skill.name == "AnalyzeImage"), None)
+        if analyze_image_skill:
+            analysis_result = analyze_image_skill.perform(filepath)
+            return jsonify({'analysis': analysis_result})
+        else:
+            return jsonify({'error': 'AnalyzeImage skill not found'}), 500
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/skills', methods=['GET'])
 def get_skills():
