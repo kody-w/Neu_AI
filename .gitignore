@@ -210,3 +210,5 @@ lab/config/api_keys.json
 /lab/art
 lab/created_assistants/assistantbot/config/api_keys.json
 /saved_content
+lab/assistant_v2/config/api_keys.json
+/lab/assistant_v2/generated_stories

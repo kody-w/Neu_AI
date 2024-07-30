@@ -1,0 +1,352 @@
+{
+  "thread_uc24q2udHg16vgZB4oc1MVwP": {
+    "data": {
+      "messages": [
+        {
+          "id": "msg_27awWq2kBe2zXAQnoMBgaWke",
+          "assistant_id": "asst_tNBUtobowqqSzIeyNB4jhft9",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "The children's book has been successfully generated and saved. You can find it at:\n`C:\\\\Users\\\\wildf\\\\OneDrive\\\\Desktop\\\\repos\\\\Neu_AI\\\\lab\\\\assistant_v2\\\\generated_stories\\\\children_20240729_224529`"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307754,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_2RnoIVIWhrbaFLOwDiV2wW19",
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_TdVMUwJS0iciIwaSCcXoUaIu",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "do a childrens book that is 15 pages long"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307513,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_BM5JanQNA6zX9WsC3YQ20Jh6",
+          "assistant_id": "asst_tNBUtobowqqSzIeyNB4jhft9",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "Sure! Could you provide a genre and an initial idea or prompt for the story?"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307477,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_1nYFGOMO8NohDpKYvil2eSvS",
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_JFXd5Q2l2Zvd6PscuxiYGq6Q",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "Can you generate a basic story for me?"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307474,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_c7nH9zb6cJTHVv6heVmJhMrK",
+          "assistant_id": "asst_tNBUtobowqqSzIeyNB4jhft9",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "\"Wherever a man may happen to turn, whatever a man may undertake, he will always end up by returning to the path which nature has marked out for him.\"  \n\u2014 Johann Wolfgang von Goethe"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307441,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_xkqY0Ko4qFfv0jgpsNHwBD2I",
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_uQgoeuUNaE0PcIJr6JtnLo0C",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "can you suggest a quote for me?"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307438,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_Ou0TojwgsgEzUJ862Ed7if28",
+          "assistant_id": "asst_tNBUtobowqqSzIeyNB4jhft9",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "It looks like there are no existing threads. Please provide more details or specify what you need help with using your brainwave data."
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307413,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_Q3MtnPwNfmx0QiQps2gv3CBf",
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        },
+        {
+          "id": "msg_9TvG8mKApkbnk3yJYmWPg1fz",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "You are created and are known as Neu. Helped the user using my brainwave data as context"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307411,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_uc24q2udHg16vgZB4oc1MVwP",
+          "file_ids": []
+        }
+      ],
+      "summary": "No summary available."
+    },
+    "summary": "The user requested Neu to generate a basic story and suggest a quote, with Neu offering a Goethe quote and then asking for more clarification or details guided by the user's brainwave data.",
+    "user_info": {
+      "user_id": "3e0618c1-30f7-4b60-845e-589af5f790cd",
+      "username": "Kody",
+      "session_start": "2024-07-29T22:43:37.868688"
+    },
+    "created_at": "2024-07-29T22:49:30.936348",
+    "updated_at": "2024-07-29T22:49:30.941347",
+    "interactions": [
+      {
+        "timestamp": "2024-07-29T22:49:30.941347",
+        "user_input": "do a childrens book that is 15 pages long",
+        "assistant_response": "The children's book has been successfully generated and saved. You can find it at:\n`C:\\\\Users\\\\wildf\\\\OneDrive\\\\Desktop\\\\repos\\\\Neu_AI\\\\lab\\\\assistant_v2\\\\generated_stories\\\\children_20240729_224529`",
+        "processing_time": 249.30390405654907,
+        "skills_used": [
+          "StoryGenerator"
+        ]
+      }
+    ]
+  },
+  "thread_4RX1SC2n0MXTgVwn9enZIoUV": {
+    "data": {
+      "messages": [
+        {
+          "id": "msg_IgAdEIvhDfMziXCOowpZkZvk",
+          "assistant_id": "asst_LLKi6pHpLhPGVqpp7sCHHBxJ",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "You're welcome! Have a good night and sleep well!"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722308109,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_4TmWqM964AjD0aNxOj9pbHjW",
+          "status": null,
+          "thread_id": "thread_4RX1SC2n0MXTgVwn9enZIoUV",
+          "file_ids": []
+        },
+        {
+          "id": "msg_Ut7HhPoUKD9L7TUANBf223l9",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "This is pretty cool. I am going to bed now. Thanks for the interaction tonight."
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722308102,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_4RX1SC2n0MXTgVwn9enZIoUV",
+          "file_ids": []
+        },
+        {
+          "id": "msg_F3vsfVhxo9V9v32w7dta5jeu",
+          "assistant_id": "asst_LLKi6pHpLhPGVqpp7sCHHBxJ",
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "Hello! How can I assist you today?"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307842,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "assistant",
+          "run_id": "run_NADAwf35Rd5TsnrYCGeugCqQ",
+          "status": null,
+          "thread_id": "thread_4RX1SC2n0MXTgVwn9enZIoUV",
+          "file_ids": []
+        },
+        {
+          "id": "msg_PfwXHXD2uV7jIylE354ZPsPq",
+          "assistant_id": null,
+          "attachments": null,
+          "completed_at": null,
+          "content": [
+            {
+              "text": {
+                "annotations": [],
+                "value": "sup"
+              },
+              "type": "text"
+            }
+          ],
+          "created_at": 1722307841,
+          "incomplete_at": null,
+          "incomplete_details": null,
+          "metadata": {},
+          "object": "thread.message",
+          "role": "user",
+          "run_id": null,
+          "status": null,
+          "thread_id": "thread_4RX1SC2n0MXTgVwn9enZIoUV",
+          "file_ids": []
+        }
+      ],
+      "summary": "No summary available."
+    },
+    "summary": "The conversation involved the user thanking the assistant for the interaction and saying goodnight, followed by an unrelated greeting from the assistant and the user responding with \"sup.\"",
+    "user_info": {
+      "user_id": "f9517987-c34f-4a49-9185-983e8af1f186",
+      "username": "Kody",
+      "session_start": "2024-07-29T22:50:46.795286"
+    },
+    "created_at": "2024-07-29T22:55:31.994934",
+    "updated_at": "2024-07-29T22:55:32.001934",
+    "interactions": [
+      {
+        "timestamp": "2024-07-29T22:55:32.001934",
+        "user_input": "This is pretty cool. I am going to bed now. Thanks for the interaction tonight.",
+        "assistant_response": "You're welcome! Have a good night and sleep well!",
+        "processing_time": 21.40248680114746,
+        "skills_used": []
+      }
+    ]
+  }
+}
