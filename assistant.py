@@ -75,7 +75,7 @@ class Assistant():
 
     def get_openai_api_call(self, messages):
         response = self.client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=messages,
             functions=self.get_skill_metadata(),
             function_call="auto"
