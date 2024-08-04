@@ -93,7 +93,8 @@ class DynamicAutoGenGroupChatSkill(BasicSkill):
             # Configure the default LLM settings
             default_llm_config = self.get_default_llm_config(
                 api_keys, temperature, max_tokens)
-            logging.info(f"LLM config set up with temperature {temperature} and max_tokens {max_tokens}")
+            logging.info(f"LLM config set up with temperature {
+                         temperature} and max_tokens {max_tokens}")
 
             # Create specialized agents
             agents = self.create_specialized_agents(roles, default_llm_config)

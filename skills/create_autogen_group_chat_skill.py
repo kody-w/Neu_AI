@@ -5,13 +5,12 @@ import subprocess
 from skills.basic_skill import BasicSkill
 import autogen
 
-
 class AutoGenGroupChatSkill(BasicSkill):
     def __init__(self):
-        self.name = 'CreateAutoGenGroupChatSkill'
+        self.name = 'AutoGenGroupChat'
         self.metadata = {
             'name': self.name,
-            'description': 'A skill to create and manage ultra-customizable AutoGen-based group chats with per-agent parameter tuning, early termination capability, and a final report generation.',
+            'description': 'A skill to create and manage ultra-customizable AutoGen-based group chats with per-agent parameter tuning and early termination capability.',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -75,29 +74,15 @@ class AutoGenGroupChatSkill(BasicSkill):
                         },
                         'description': 'Configuration for the group chat manager'
                     },
-                    'report_agent': {
-                        'type': 'object',
-                        'properties': {
-                            'name': {'type': 'string'},
-                            'prompt': {'type': 'string'},
-                            'model': {'type': 'string'},
-                            'temperature': {'type': 'number'},
-                            'max_tokens': {'type': 'integer'},
-                            'top_p': {'type': 'number'},
-                            'frequency_penalty': {'type': 'number'},
-                            'presence_penalty': {'type': 'number'}
-                        },
-                        'description': 'Configuration for the report generation agent'
-                    },
                     'default_model': {
                         'type': 'string',
                         'description': 'The default Azure OpenAI model to use',
-                        'default': 'gpt-4o-mini'
+                        'default': 'gpt-4o'
                     },
                     'default_azure_deployment': {
                         'type': 'string',
                         'description': 'The default Azure deployment name for the model',
-                        'default': 'gpt-4o-mini'
+                        'default': 'gpt-4o'
                     },
                     'allow_early_termination': {
                         'type': 'boolean',
@@ -110,12 +95,11 @@ class AutoGenGroupChatSkill(BasicSkill):
         }
         super().__init__(name=self.name, metadata=self.metadata)
 
-    def perform(self, chat_name, task_description, participants, max_turns, user_proxy=None, manager=None, report_agent=None, default_model='gpt-4o-mini', default_azure_deployment='gpt-4o-mini', allow_early_termination=True):
+    def perform(self, chat_name, task_description, participants, max_turns, user_proxy=None, manager=None, default_model='gpt-4o', default_azure_deployment='gpt-4o', allow_early_termination=True):
         group_chats_dir = "group_chats"
         os.makedirs(group_chats_dir, exist_ok=True)
 
-        chat_dir = os.path.join(
-            group_chats_dir, chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join(group_chats_dir, chat_name.lower().replace(' ', '_'))
         os.makedirs(chat_dir, exist_ok=True)
 
         chat_config_dir = os.path.join(chat_dir, "config")
@@ -126,8 +110,7 @@ class AutoGenGroupChatSkill(BasicSkill):
         if os.path.exists(api_keys_src):
             shutil.copy(api_keys_src, api_keys_dst)
         else:
-            print(
-                f"Warning: api_keys.json not found at {api_keys_src}. You may need to create this file manually.")
+            print(f"Warning: api_keys.json not found at {api_keys_src}. You may need to create this file manually.")
 
         chat_config_file = os.path.join(chat_dir, "chat_config.json")
         chat_config = {
@@ -143,13 +126,6 @@ class AutoGenGroupChatSkill(BasicSkill):
             'manager': manager or {
                 'name': 'Manager',
                 'prompt': 'You are the manager of this group chat. Ensure the group stays on task and delivers what is expected. You can end the chat early if you believe the task is completed satisfactorily.'
-            },
-            'report_agent': report_agent or {
-                'name': 'ReportAgent',
-                'prompt': 'You are responsible for generating a comprehensive report based on the group chat discussion. Summarize key points, decisions, and outcomes related to the task.',
-                'model': default_model,
-                'temperature': 0.7,
-                'max_tokens': 2000
             },
             'default_model': default_model,
             'default_azure_deployment': default_azure_deployment,
@@ -228,25 +204,6 @@ class EarlyTerminationGroupChatManager(autogen.GroupChatManager):
             return False  # This will end the chat
         return super().process_message(message, sender, silent)
 
-def generate_report(report_agent, chat_history, task_description):
-    report_prompt = f"""
-    Task Description: {task_description}
-
-    Chat History:
-    {chat_history}
-
-    Based on the above task description and chat history, generate a comprehensive report summarizing the key points, decisions, and outcomes. The report should be well-structured, clear, and provide valuable insights derived from the group chat discussion.
-    """
-    
-    report = report_agent.generate_response(report_prompt)
-    return report
-
-def save_report(report, chat_name):
-    report_file_path = f"group_chats/{chat_name.lower().replace(' ', '_')}/final_report.md"
-    with open(report_file_path, 'w', encoding='utf-8') as file:
-        file.write(report)
-    print(f"Final report saved to: {report_file_path}")
-
 def main():
     api_keys = load_api_keys()
     chat_config = load_chat_config()
@@ -281,39 +238,26 @@ def main():
         allow_early_termination=chat_config['allow_early_termination']
     )
 
-    report_agent_config = get_llm_config(api_keys, chat_config['report_agent'], chat_config)
-    report_agent = autogen.AssistantAgent(
-        name=chat_config['report_agent']['name'],
-        system_message=chat_config['report_agent']['prompt'],
-        llm_config=report_agent_config,
-    )
-
     result = manager.initiate_chat(manager, message=chat_config['task_description'])
     print(result)
-
-    # Generate and save the report
-    chat_history = "\n".join([f"{msg['sender']}: {msg['content']}" for msg in group_chat.messages])
-    report = generate_report(report_agent, chat_history, chat_config['task_description'])
-    save_report(report, chat_config['chat_name'])
 
 if __name__ == "__main__":
     main()
 '''
 
     def list_group_chats(self):
-        group_chats_dir = "group_chats"
-        if not os.path.exists(group_chats_dir):
-            return "No group chats have been created yet."
+            group_chats_dir = "group_chats"
+            if not os.path.exists(group_chats_dir):
+                return "No group chats have been created yet."
 
-        chats = os.listdir(group_chats_dir)
-        if not chats:
-            return "No group chats have been created yet."
+            chats = os.listdir(group_chats_dir)
+            if not chats:
+                return "No group chats have been created yet."
 
-        return "Created Group Chats:\n" + "\n".join(chats)
+            return "Created Group Chats:\n" + "\n".join(chats)
 
     def delete_group_chat(self, chat_name):
-        chat_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -324,8 +268,7 @@ if __name__ == "__main__":
             return f"An error occurred while deleting the group chat: {str(e)}"
 
     def update_group_chat(self, chat_name, new_config):
-        chat_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -344,8 +287,7 @@ if __name__ == "__main__":
             return f"An error occurred while updating the group chat: {str(e)}"
 
     def get_group_chat_info(self, chat_name):
-        chat_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
@@ -366,7 +308,6 @@ if __name__ == "__main__":
             info += f"Max Turns: {config['max_turns']}\n"
             info += f"User Proxy: {config['user_proxy']['name']}\n"
             info += f"Manager: {config['manager']['name']}\n"
-            info += f"Report Agent: {config['report_agent']['name']}\n"
             info += f"Default Model: {config['default_model']}\n"
             info += f"Default Azure Deployment: {config['default_azure_deployment']}\n"
             info += f"Allow Early Termination: {config['allow_early_termination']}\n"
@@ -375,28 +316,24 @@ if __name__ == "__main__":
             return f"An error occurred while retrieving group chat information: {str(e)}"
 
     def run_group_chat(self, chat_name):
-        chat_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        chat_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(chat_dir):
             return f"Group chat '{chat_name}' not found."
 
         chat_file_path = os.path.join(chat_dir, "group_chat.py")
         try:
-            result = subprocess.run(
-                ["python", chat_file_path], capture_output=True, text=True, check=True)
+            result = subprocess.run(["python", chat_file_path], capture_output=True, text=True, check=True)
             return f"Group chat '{chat_name}' executed successfully. Output:\n{result.stdout}"
         except subprocess.CalledProcessError as e:
             return f"An error occurred while running the group chat: {e.output}"
 
     def backup_group_chat(self, chat_name, backup_dir="group_chat_backups"):
-        source_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        source_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
         if not os.path.exists(source_dir):
             return f"Group chat '{chat_name}' not found."
 
         os.makedirs(backup_dir, exist_ok=True)
-        backup_path = os.path.join(
-            backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
 
         try:
             shutil.copytree(source_dir, backup_path)
@@ -405,13 +342,11 @@ if __name__ == "__main__":
             return f"An error occurred while backing up the group chat: {str(e)}"
 
     def restore_group_chat(self, chat_name, backup_dir="group_chat_backups"):
-        backup_path = os.path.join(
-            backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
+        backup_path = os.path.join(backup_dir, f"{chat_name.lower().replace(' ', '_')}_backup")
         if not os.path.exists(backup_path):
             return f"Backup for group chat '{chat_name}' not found."
 
-        target_dir = os.path.join(
-            "group_chats", chat_name.lower().replace(' ', '_'))
+        target_dir = os.path.join("group_chats", chat_name.lower().replace(' ', '_'))
 
         try:
             if os.path.exists(target_dir):
