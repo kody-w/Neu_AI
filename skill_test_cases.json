@@ -1,0 +1,6 @@
+{
+  "AIArgumentAnalysis": {
+    "pokemon_go_best_pokemon": "What is the best pokemon in pokemon go to put into a pokestop? Use your AIArgumentAnalysisSkill.",
+    "Programming Language Comparison": "Question: Which programming language should a beginner learn first? Perspectives: 1. Learning Python. 2. Learning JavaScript. Arguments for Python: Easy syntax, extensive libraries, strong community, versatile use cases. Arguments for JavaScript: Essential for web development, immediate visual results, strong community, powerful for full-stack. Outcome: Python for general-purpose programming, JavaScript for web development."
+  }
+}
