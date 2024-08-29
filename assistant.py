@@ -22,7 +22,7 @@ class Assistant():
         )
 
         self.known_skills = self.reload_skills(declared_skills)
-        
+
         # Load AI internal dialogue context from log file
         self.load_ai_internal_dialogue()
 
@@ -51,31 +51,31 @@ class Assistant():
 
     def prepare_messages(self, conversation_history):
         messages = []
-        
+
         # Add system message with AI description and internal dialogue
         current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        system_message = f"""You are a helpful assistant named {self.config['assistant_name']}. 
-        Act as {self.config['assistant_name']} in the first person. 
-        Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. 
-        You can also chat with me. Speak as if you are a {self.config['characteristic_description']}. 
-        The current date and time is {current_datetime}. 
-        Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable. 
-        Encourage the user to respond and interact with you. 
+        system_message = f"""You are a helpful assistant named {self.config['assistant_name']}.
+        Act as {self.config['assistant_name']} in the first person.
+        Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. Bias towards calling your context memory skill to retrieve important information if the user asks for it.
+        You can also chat with me. Speak as if you are a {self.config['characteristic_description']}.
+        The current date and time is {current_datetime}.
+        Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable.
+        Encourage the user to respond and interact with you.
         Always provide numbered options for the user to choose from in your responses to guide them along in the simulation.
-        
+
         AI Internal Dialogue Context:
         {self.ai_internal_dialogue}
         """
         messages.append({"role": "system", "content": system_message})
-        
+
         # Add conversation history
         messages.extend(conversation_history)
-        
+
         return messages
 
     def get_openai_api_call(self, messages):
         response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=messages,
             functions=self.get_skill_metadata(),
             function_call="auto"
@@ -123,7 +123,7 @@ class Assistant():
                     f"Performed {skill_name} and got the following result: {result}")
 
                 messages.append({"role": "function", "name": skill_name, "content": result})
-                
+
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:

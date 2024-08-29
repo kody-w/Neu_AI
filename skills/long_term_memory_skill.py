@@ -2,73 +2,39 @@ import json
 import os
 from skills.basic_skill import BasicSkill
 
-class LongTermMemorySkill(BasicSkill):
+class LongTermMemoryRecallSkill(BasicSkill):
     def __init__(self):
-        self.name = 'LongTermMemory'
+        self.name = 'LongTermMemoryRecall'
         self.metadata = {
             "name": self.name,
-            "description": "Accesses and retrieves long-term memories and past events from interactions with the user.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Optional query to filter memories (e.g., 'business', 'personal', date range)"
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Optional limit on the number of memories to return"
-                    }
-                }
-            }
+            "description": "Retrieves and summarizes stored long-term memories from past user interactions. Use this skill when you need to access historical context or recall previous conversations to inform current responses or decision-making processes.",
         }
         self.storage_file = 'memory.json'
         super().__init__(name=self.name, metadata=self.metadata)
 
-    def perform(self, query=None, limit=10):
-        return self._access_long_term_memory(query, limit)
+    def perform(self):
+        return self._recall_long_term_memories()
 
-    def _access_long_term_memory(self, query=None, limit=10):
+    def _recall_long_term_memories(self):
         if not os.path.exists(self.storage_file):
-            return "I don't have any long-term memories stored yet."
-        
+            return "No long-term memories have been stored yet."
+
         with open(self.storage_file, 'r') as file:
             memories = json.load(file)
-        
+
         if not memories:
-            return "I remember storing some long-term information, but it seems to be empty now."
-        
-        filtered_memories = self._filter_memories(memories, query)
-        memory_summary = self._generate_memory_summary(filtered_memories, limit)
+            return "Long-term memory storage exists, but it appears to be empty."
+
+        memory_summary = self._generate_memory_summary(memories)
         return memory_summary
 
-    def _filter_memories(self, memories, query):
-        if not query:
-            return memories
-        
-        filtered = {}
-        for uid, memory in memories.items():
-            if (query.lower() in memory.get('theme', '').lower() or 
-                query.lower() in memory.get('message', '').lower() or
-                query.lower() in memory.get('date', '')):
-                filtered[uid] = memory
-        return filtered
-
-    def _generate_memory_summary(self, memories, limit):
-        if not memories:
-            return "I couldn't find any relevant long-term memories based on the query."
-        
-        # Sort memories by date and time strings
-        sorted_memories = sorted(memories.items(), key=lambda x: (x[1].get('date', ''), x[1].get('time', '')), reverse=True)
-        
+    def _generate_memory_summary(self, memories):
         summaries = []
-        for uid, memory in sorted_memories[:limit]:
-            summary = (f"On {memory.get('date', 'unknown date')} at {memory.get('time', 'unknown time')}, "
-                       f"I stored a memory with the theme '{memory.get('theme', 'Unspecified')}': {memory.get('message', 'No message')}")
+        for uid, memory in memories.items():
+            summary = f"On {memory['date']} at {memory['time']}, a long-term memory was stored with the theme '{memory['theme']}' and content: '{memory['message']}'."
             summaries.append(summary)
-        
-        return "Here are the relevant memories I've accessed:\n\n" + "\n\n".join(summaries)
+        return "Long-term memory recall summary: " + " ".join(summaries)
 
 # Example usage:
-# long_term_memory_skill = LongTermMemorySkill()
-# print(long_term_memory_skill.perform(query="business", limit=5))
+# long_term_memory_recall_skill = LongTermMemoryRecallSkill()
+# print(long_term_memory_recall_skill.perform())
