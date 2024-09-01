@@ -23,19 +23,16 @@ class Assistant():
 
         self.known_skills = self.reload_skills(declared_skills)
 
-        # Load AI internal dialogue context from log file
-        self.load_ai_internal_dialogue()
+        # Load context memory instead of AI internal dialogue
+        self.load_context_memory()
 
-    def load_ai_internal_dialogue(self):
-        log_file_path = "ai_internal_dialogue.log"
-        if os.path.exists(log_file_path):
-            with open(log_file_path, 'r', encoding='utf-8') as log_file:
-                lines = log_file.readlines()
-                recent_lines = lines[-20:]  # Get the last 20 lines
-                self.ai_internal_dialogue = "".join(recent_lines)
+    def load_context_memory(self):
+        context_memory_skill = self.known_skills.get('ContextMemory')
+        if context_memory_skill:
+            self.context_memory = context_memory_skill.perform()
         else:
-            self.ai_internal_dialogue = ""
-            print(f"AI internal dialogue log file not found at {log_file_path}")
+            self.context_memory = "Context memory skill not found."
+            print("ContextMemorySkill not found.")
 
     def get_skill_metadata(self):
         skills_metadata = []
@@ -52,7 +49,7 @@ class Assistant():
     def prepare_messages(self, conversation_history):
         messages = []
 
-        # Add system message with AI description and internal dialogue
+        # Add system message with AI description and context memory
         current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
         system_message = f"""You are a helpful assistant named {self.config['assistant_name']}.
         Act as {self.config['assistant_name']} in the first person.
@@ -63,8 +60,8 @@ class Assistant():
         Encourage the user to respond and interact with you.
         Always provide numbered options for the user to choose from in your responses to guide them along in the simulation.
 
-        AI Internal Dialogue Context:
-        {self.ai_internal_dialogue}
+        Context Memory:
+        {self.context_memory}
         """
         messages.append({"role": "system", "content": system_message})
 
