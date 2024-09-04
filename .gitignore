@@ -216,3 +216,4 @@ lab/assistant_v2/config/api_keys.json
 utilities/concatenated.py
 utilities/concatenated.py
 memory_summary_cache.json
+dynamics365_vector_db.json
