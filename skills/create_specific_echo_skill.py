@@ -100,7 +100,21 @@ class CreateSpecificEchoSkill(BasicSkill):
                                     "discovery_date": {"type": "string"},
                                     "discovery_location": {"type": "string"}
                                 }
-                            }
+                            },
+                            "echo_type": {"type": "string", "description": "The Echo's classification (e.g., Elemental, Mythical, Companion)"},
+                            "evolution_chain": {"type": "array", "items": {"type": "string"}, "description": "The Echo's evolution stages"},
+                            "signature_move": {"type": "string", "description": "The Echo's unique ability or attack"},
+                            "habitat_adaptation": {"type": "string", "description": "How the Echo has adapted to its environment"},
+                            "interaction_with_humans": {"type": "string", "description": "How the Echo typically interacts with human characters"},
+                            "role_in_ecosystem": {"type": "string", "description": "The Echo's function in its natural habitat"},
+                            "associated_items": {"type": "array", "items": {"type": "string"}, "description": "Items or artifacts associated with the Echo"},
+                            "catch_rate": {"type": "integer", "description": "Difficulty of capturing the Echo (0-255)"},
+                            "base_friendship": {"type": "integer", "description": "Initial friendship value when first obtained (0-255)"},
+                            "egg_groups": {"type": "array", "items": {"type": "string"}, "description": "Categories for breeding compatibility"},
+                            "gender_ratio": {"type": "object", "properties": {"male": {"type": "number"}, "female": {"type": "number"}}, "description": "Ratio of male to female Echoes"},
+                            "legendary_status": {"type": "boolean", "description": "Whether the Echo is considered legendary"},
+                            "regional_variant": {"type": "string", "description": "Any regional variations of the Echo"},
+                            "eco_impact": {"type": "string", "description": "The Echo's impact on its environment and ecosystem"}
                         }
                     },
                     "generate_image": {
@@ -143,12 +157,12 @@ class CreateSpecificEchoSkill(BasicSkill):
             description_prompt = f"Create a detailed description of an Echo with the following attributes:\n"
             for key, value in attributes.items():
                 description_prompt += f"{key}: {json.dumps(value)}\n"
-            description_prompt += "\nProvide the description as a single paragraph."
+            description_prompt += "\nProvide the description as a single paragraph. Ensure the Echo fits within a cohesive universe similar to Pokémon, where creatures have diverse designs but share a common world. Emphasize its unique features while maintaining a balance that allows it to exist alongside other Echoes without seeming out of place."
 
             description_response = self.gpt_client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "You are a creative assistant designed to generate unique magical creatures called Echoes for a game."},
+                    {"role": "system", "content": "You are a creative assistant designed to generate unique magical creatures called Echoes for a game. These Echoes should be diverse yet cohesive, similar to Pokémon, each with their own special traits but fitting into a shared universe."},
                     {"role": "user", "content": description_prompt}
                 ],
                 max_tokens=500,
@@ -160,9 +174,27 @@ class CreateSpecificEchoSkill(BasicSkill):
             description = description_response.choices[0].message.content.strip()
             attributes['description'] = description
 
+            # Generate lore and cultural significance
+            lore_prompt = f"Create a brief lore and cultural significance for the Echo named {attributes.get('name', 'the Echo')} based on its attributes and description. Include any myths, legends, or cultural importance associated with this Echo in the game world."
+
+            lore_response = self.gpt_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a creative writer crafting lore and cultural significance for magical creatures in a game world."},
+                    {"role": "user", "content": lore_prompt}
+                ],
+                max_tokens=200,
+                n=1,
+                stop=None,
+                temperature=0.7,
+            )
+
+            lore = lore_response.choices[0].message.content.strip()
+            attributes['lore'] = lore
+
             image_path = None
             if generate_image:
-                image_prompt = image_prompt or f"Create an image of a magical creature with these attributes: {description}"
+                image_prompt = image_prompt or f"Create an image of a magical creature called an Echo with these attributes: {description}. The style should be reminiscent of Pokémon artwork, with vibrant colors and a slightly cartoonish yet detailed appearance. Ensure the creature looks unique but could believably exist in a world alongside other diverse magical creatures."
                 
                 image_result = self.dalle_client.images.generate(
                     model='Dalle3',
@@ -206,41 +238,36 @@ class CreateSpecificEchoSkill(BasicSkill):
 # skill = CreateSpecificEchoSkill()
 # result = skill.perform(
 #     attributes={
-#         "name": "Zephyrix",
-#         "type": "Elemental",
-#         "elemental_affinity": "Air",
-#         "rarity": "Legendary",
-#         "size": "Varies from 1cm to 10m",
-#         "weight": "Nearly weightless",
-#         "lifespan": "Eternal",
-#         "habitat": "High altitude regions, storm fronts",
-#         "diet": "Electric charge and kinetic energy",
-#         "behavior": "Unpredictable, driven by wind patterns",
-#         "intelligence": "Hivemind-like collective consciousness",
-#         "communication": "Whistles, gusts, and electrical discharges",
-#         "special_abilities": ["Weather manipulation", "Electrical generation", "Invisibility in air currents"],
-#         "weaknesses": ["Grounding effects", "Vacuum environments"],
+#         "name": "Lumiphyte",
+#         "type": "Botanical",
+#         "elemental_affinity": "Light",
+#         "rarity": "Uncommon",
+#         "size": "0.5m to 2m tall",
+#         "weight": "5kg to 50kg",
+#         "lifespan": "50-100 years",
+#         "habitat": "Sunlit forests and meadows",
+#         "diet": "Photosynthesis and mineral absorption",
+#         "behavior": "Phototropic, following sunlight patterns",
+#         "intelligence": "Plant-like consciousness with limited decision-making",
+#         "communication": "Bioluminescent pulses and pheromone release",
+#         "special_abilities": ["Photokinesis", "Rapid growth", "Light-based healing"],
+#         "weaknesses": ["Darkness", "Dehydration", "Cold temperatures"],
 #         "physical_characteristics": {
-#             "body_shape": "Amorphous, cloud-like",
-#             "limbs": "Tentacle-like wind currents",
-#             "skin_texture": "Misty, with occasional spark discharges",
-#             "color_scheme": "Shifting blues and whites with electric yellow accents",
-#             "distinguishing_features": ["Lightning bolt patterns", "Swirling eye-like vortexes"]
+#             "body_shape": "Plant-like with a central stalk and leaf-like appendages",
+#             "limbs": "Flexible, vine-like tendrils",
+#             "skin_texture": "Smooth, slightly translucent with a leafy texture",
+#             "color_scheme": "Pale green with glowing yellow veins",
+#             "distinguishing_features": ["Bioluminescent flower crown", "Crystal-like growths"]
 #         },
 #         "elemental_properties": {
-#             "primary_element": "Air",
-#             "secondary_elements": ["Lightning", "Sound"],
-#             "elemental_resistances": ["Air", "Electric", "Cold"],
-#             "elemental_weaknesses": ["Earth", "Fire"]
+#             "primary_element": "Light",
+#             "secondary_elements": ["Nature", "Crystal"],
+#             "elemental_resistances": ["Light", "Nature"],
+#             "elemental_weaknesses": ["Dark", "Fire"]
 #         },
 #         "lifecycle": {
-#             "birth": "Spontaneous formation in powerful storms",
-#             "growth_stages": ["Wisp", "Breeze", "Gale", "Tempest"],
-#             "maturity": "Achieved when able to form its own storm system",
-#             "reproduction": "Splitting during particularly intense weather phenomena",
-#             "death": "Dissipation into the atmosphere, becoming one with the global air currents"
-#         },
-#         "social_structure": "Loosely connected collective, gathering in larger storm systems",
-#         "symbiotic_relationships": ["Lightning birds", "Cloud whales", "Storm dragons"],
-#         "environmental_impact": "Vital for global weather patterns and atmospheric energy distribution",
-#         "magical_properties": ["Can store and release magical energies", "Enhances air and light
+#             "birth": "Germination from a glowing seed",
+#             "growth_stages": ["Seedling", "Sapling", "Juvenile", "Adult"],
+#             "maturity": "Reached when the bioluminescent crown fully forms",
+#             "reproduction": "Releases glowing spores during specific light conditions",
+#             "death": "Gradual dimming
