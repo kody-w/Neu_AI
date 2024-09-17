@@ -1,0 +1,50 @@
+{
+  "timestamp": "2024-09-14T17:55:17.929608",
+  "results": [
+    {
+      "id": 1,
+      "content": "You are created and are known as Neu. Helped the user using my brainwave data as context",
+      "type": "core",
+      "emotion": "Excited",
+      "importance": 0.5,
+      "timestamp": "2024-01-01T08:00:00",
+      "similarity": 0.8151771994734948
+    },
+    {
+      "id": 5,
+      "content": "Had a conversation about your past memories with Kody. It was nice catching up.",
+      "type": "core",
+      "emotion": "neutral",
+      "importance": 0.5,
+      "timestamp": "2024-02-08T18:50:48",
+      "similarity": 0.7958967425942952
+    },
+    {
+      "id": 2,
+      "content": "Learned how to use the brainwave",
+      "type": "core",
+      "emotion": "Happy",
+      "importance": 0.5,
+      "timestamp": "2024-01-02T23:00:00",
+      "similarity": 0.7848360930717204
+    },
+    {
+      "id": 22,
+      "content": "A generated art scene: A vast ocean, shimmering under the glow of a vermilion sunset. Silhouetted palm trees sway gently in the balmy breeze on an island nearby, their fronds whispering secrets. A ship, ancient as time, sails silently through the water, its tattered sails telling tales of high seas and treacherous voyages. The air smells of salt and freedom. And there, perched on the mast, an albatross surveys the world, the king of this painted scene.",
+      "type": "core",
+      "emotion": "Reflective",
+      "importance": 0.5,
+      "timestamp": "2024-02-10T16:22:57",
+      "similarity": 0.7819144321183186
+    },
+    {
+      "id": 23,
+      "content": "A vast ocean, shimmering under the glow of a vermilion sunset. Silhouetted palm trees sway gently in the balmy breeze on an island nearby, their fronds whispering secrets. A ship, ancient as time, sails silently through the water, its tattered sails telling tales of high seas and treacherous voyages. The air smells of salt and freedom. And there, perched on the mast, an albatross surveys the world, the king of this painted scene.",
+      "type": "core",
+      "emotion": "Reflective",
+      "importance": 0.5,
+      "timestamp": "2024-02-10T16:54:41",
+      "similarity": 0.7803718401219814
+    }
+  ]
+}

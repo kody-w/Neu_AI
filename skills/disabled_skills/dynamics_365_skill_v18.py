@@ -4,7 +4,6 @@ import time
 from urllib.parse import quote_plus
 from skills.basic_skill import BasicSkill
 
-
 class Dynamics365CRUDSkill(BasicSkill):
     def __init__(self, config_path='config/api_keys.json', max_retries=3, retry_delay=5):
         # Load configuration from the given JSON file path
@@ -26,7 +25,7 @@ class Dynamics365CRUDSkill(BasicSkill):
                 "properties": {
                     "operation": {
                         "type": "string",
-                        "description": "The CRUD operation to perform. Must be one of: create, read, update, delete."
+                        "description": "The CRUD operation to perform. Must be one of: create, read, update, delete, query."
                     },
                     "entity": {
                         "type": "string",
@@ -38,14 +37,14 @@ class Dynamics365CRUDSkill(BasicSkill):
                     },
                     "fetchxml": {
                         "type": "string",
-                        "description": """The FetchXML query string to execute. The FetchXML query should be provided as a single-line string without any newline characters or extra spaces."""
+                        "description": "The FetchXML query string to execute. The FetchXML query should be provided as a single-line string without any newline characters or extra spaces."
                     },
                     "fetchxml_entity_columns_to_return_in_query_results": {
                         "type": "string",
                         "description": "The columns of the entity to return in the query results. If not specified, only the default name field will be returned."
                     }
                 },
-                "required": ["operation", "entity", "fetchxml", "fetchxml_entity_columns_to_return_in_query_results"]
+                "required": ["operation", "entity"]
             }
         }
         super().__init__(name=self.name, metadata=self.metadata)
@@ -116,22 +115,40 @@ class Dynamics365CRUDSkill(BasicSkill):
             print(f"Debug: Read Headers: {headers}")
             response = requests.get(url, headers=headers)
         elif operation == "update":
-            url = f"{base_url}{entity}"
-            print(f"Debug: Update URL: {url}")
+            # First, retrieve the entity ID using the FetchXML query
+            encoded_fetchxml = quote_plus(fetchxml)
+            query_url = f"{base_url}{entity}?fetchXml={encoded_fetchxml}"
+            query_response = requests.get(query_url, headers=headers)
+            
+            if query_response.status_code != 200:
+                raise Exception(f"Failed to retrieve entity. Status code: {query_response.status_code}")
+            
+            entities = query_response.json().get('value', [])
+            if not entities:
+                raise Exception(f"No {entity} found with the given criteria.")
+            
+            entity_id = entities[0][f'{entity[:-1]}id']
+            
+            # Now, update the entity using the POST method
+            update_url = f"{base_url}{entity}({entity_id})"
+            headers['X-HTTP-Method'] = 'PATCH'  # This header tells the API to treat this as a PATCH operation
+            print(f"Debug: Update URL: {update_url}")
             print(f"Debug: Update Headers: {headers}")
             print(f"Debug: Update Data: {data}")
-            response = requests.patch(url, headers=headers, data=data)
+            response = requests.post(update_url, headers=headers, data=data)
         elif operation == "delete":
             url = f"{base_url}{entity}"
             print(f"Debug: Delete URL: {url}")
             print(f"Debug: Delete Headers: {headers}")
             response = requests.delete(url, headers=headers)
         elif operation == "query" and fetchxml:
-            # Modify the FetchXML query to return only the top 1 record
-            modified_fetchxml = fetchxml.replace('<fetch', '<fetch top="1"')
-
-            encoded_fetchxml = quote_plus(modified_fetchxml)
+            # Don't modify the FetchXML query
+            encoded_fetchxml = quote_plus(fetchxml)
             url = f"{base_url}{entity}?fetchXml={encoded_fetchxml}"
+            
+            if fetchxml_entity_columns_to_return_in_query_results:
+                url += f"&$select={fetchxml_entity_columns_to_return_in_query_results}"
+            
             print(f"Debug: Query URL: {url}")
             print(f"Debug: Query Headers: {headers}")
             response = requests.get(url, headers=headers)
@@ -141,14 +158,14 @@ class Dynamics365CRUDSkill(BasicSkill):
         print(f"Debug: Response Status Code: {response.status_code}")
         print(f"Debug: Response Content: {response.content}")
 
-        if response.status_code != 200:
+        if response.status_code not in [200, 204]:
             print(f"Error: Request failed with status code {response.status_code}")
             print(f"Error Details: {response.text}")
             raise Exception(f"Request failed with status code {response.status_code}")
 
         result = response.json() if response.content else "Operation successful."
 
-        # Ensure the result string does not exceed 2000 characters
+        # Ensure the result string does not exceed 20000 characters
         result_str = json.dumps(result)
         if len(result_str) > 20000:
             # Save the full response to a file
@@ -159,3 +176,24 @@ class Dynamics365CRUDSkill(BasicSkill):
             return result_str[:20000]
         else:
             return result_str
+
+
+'''
+# Example usage
+if __name__ == "__main__":
+    skill = Dynamics365CRUDSkill()
+    
+    # Example: Query tasks created last week
+    fetchxml = "<fetch><entity name='task'><attribute name='subject'/><attribute name='description'/><attribute name='createdon'/><filter><condition attribute='createdon' operator='last-week'/></filter></entity></fetch>"
+    columns_to_return = "subject,description,createdon"
+    
+    result = skill.perform(
+        operation="query",
+        entity="tasks",
+        fetchxml=fetchxml,
+        fetchxml_entity_columns_to_return_in_query_results=columns_to_return
+    )
+    
+    print("Query Result:", result)
+
+'''

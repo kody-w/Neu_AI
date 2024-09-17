@@ -6,6 +6,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from skills.basic_skill import BasicSkill
 import logging
 from datetime import datetime, timedelta
+import hashlib
+import os
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -66,6 +68,11 @@ class CoreMemoryHopfieldSearchSkill(BasicSkill):
         self.vectorizer = TfidfVectorizer(stop_words='english')
         self._load_memories()
         self.memory_vectors = self._vectorize_memories()
+        
+        # New attributes for caching
+        self.cache_dir = 'search_cache'
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
 
     def _load_memories(self):
         try:
@@ -127,7 +134,38 @@ class CoreMemoryHopfieldSearchSkill(BasicSkill):
         else:  # 'all'
             return datetime.min
 
+    def _generate_cache_key(self, query, emotion, time_range, top_k, threshold):
+        # Generate a unique key for the search parameters
+        params = f"{query}|{emotion}|{time_range}|{top_k}|{threshold}"
+        return hashlib.md5(params.encode()).hexdigest()
+
+    def _save_to_cache(self, cache_key, results):
+        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+        with open(cache_file, 'w') as f:
+            json.dump({
+                'timestamp': datetime.now().isoformat(),
+                'results': results
+            }, f, indent=2)
+        logger.info(f"Search results cached to {cache_file}")
+
+    def _get_from_cache(self, cache_key, max_age_hours=24):
+        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+        if os.path.exists(cache_file):
+            with open(cache_file, 'r') as f:
+                cached_data = json.load(f)
+            cache_time = datetime.fromisoformat(cached_data['timestamp'])
+            if datetime.now() - cache_time < timedelta(hours=max_age_hours):
+                logger.info(f"Retrieved results from cache: {cache_file}")
+                return cached_data['results']
+        return None
+
     def perform(self, query, emotion, time_range, top_k, threshold):
+        cache_key = self._generate_cache_key(query, emotion, time_range, top_k, threshold)
+        cached_results = self._get_from_cache(cache_key)
+        if cached_results:
+            logger.info("Returning cached results")
+            return json.dumps(cached_results, indent=2)
+
         logger.info(f"Performing search with query: '{query}', emotion: {emotion}, time_range: {time_range}, top_k: {top_k}, threshold: {threshold}")
         if not self.core_memories and not self.associated_memories:
             logger.warning("No memories found in the database.")
@@ -185,6 +223,7 @@ class CoreMemoryHopfieldSearchSkill(BasicSkill):
             })
 
         logger.info(f"Returning {len(results)} results")
+        self._save_to_cache(cache_key, results)
         return json.dumps(results, indent=2)
 
     def add_core_memory(self, content, emotion, importance):
@@ -220,8 +259,9 @@ class CoreMemoryHopfieldSearchSkill(BasicSkill):
         with open(self.memory_file, 'w') as file:
             json.dump(data, file, indent=2)
         logger.debug(f"Saved {len(self.core_memories)} core memories and {len(self.associated_memories)} associated memories")
+
+# Example usage (commented out)
 '''
-# Example usage
 if __name__ == "__main__":
     skill = CoreMemoryHopfieldSearchSkill()
     
@@ -244,5 +284,14 @@ if __name__ == "__main__":
 
     print("Memory added successfully")
 
-
+    # Example: Perform the same search again to demonstrate caching
+    cached_results = skill.perform(
+        query="family outing",
+        emotion="happy",
+        time_range="all",
+        top_k=5,
+        threshold=0.1
+    )
+    
+    print("Cached Search Results:", cached_results)
 '''

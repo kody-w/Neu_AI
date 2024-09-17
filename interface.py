@@ -4,64 +4,79 @@ import os
 import importlib
 import inspect
 import re
+import argparse
 from termcolor import colored, cprint
 from assistant import Assistant
 from skills.basic_skill import BasicSkill
+import ssl
 
-def load_skills_from_folder():
+def configure_ssl():
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
+def load_skills_from_folder(verbose_mode=False):
     files_in_skills_directory = os.listdir("./skills")
-    skill_files = []
-    for file in files_in_skills_directory:
-        if not file.endswith(".py"):
-            continue
-        forbidden_files = ["__init__.py", "basic_skill.py"]
-        if file in forbidden_files:
-            continue
-        skill_files.append(file)
-
-    skill_module_names = []
-    for file in skill_files:
-        skill_module_names.append(file[:-3])
+    skill_files = [f for f in files_in_skills_directory if f.endswith(".py") and f not in ["__init__.py", "basic_skill.py"]]
 
     declared_skills = []
-    for skill in skill_module_names:
-        module = importlib.import_module('skills.' + skill)
-        for name, member in inspect.getmembers(module):
-            if not (inspect.isclass(member) and issubclass(member, BasicSkill)):
-                continue
-            if member is BasicSkill:
-                continue
-            declared_skills.append(member())
+    for skill_file in skill_files:
+        module_name = skill_file[:-3]
+        try:
+            module = importlib.import_module(f'skills.{module_name}')
+            for name, obj in inspect.getmembers(module):
+                if inspect.isclass(obj) and issubclass(obj, BasicSkill) and obj is not BasicSkill:
+                    try:
+                        skill_instance = obj()
+                        declared_skills.append(skill_instance)
+                        if verbose_mode:
+                            print(f"Successfully loaded skill: {obj.__name__}")
+                    except Exception as e:
+                        if verbose_mode:
+                            print(f"Error initializing skill {obj.__name__}: {str(e)}")
+        except Exception as e:
+            if verbose_mode:
+                print(f"Error loading module {module_name}: {str(e)}")
 
     return declared_skills
 
 def filter_text(text):
-    # Remove any characters that are not alphanumeric, space, or punctuation
     filtered_text = re.sub(r'[^a-zA-Z0-9\s\.,!?]', '', text)
     return filtered_text
 
 def speak(response, assistant_name):
     text, additional_output = response
-    
+
     filtered_text = filter_text(text)
     cprint(assistant_name + f":🌐📞 {text}", 'cyan')
-    
+
     if additional_output:
         print(additional_output)
 
 if __name__ == "__main__":
-    declared_skills = load_skills_from_folder()
+    parser = argparse.ArgumentParser(description='Run the assistant.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose mode with debug output.')
+    args = parser.parse_args()
+    verbose_mode = args.verbose
+
+    configure_ssl()
+    declared_skills = load_skills_from_folder(verbose_mode=verbose_mode)
+    if verbose_mode:
+        print(f"Loaded {len(declared_skills)} skills successfully.")
 
     # Load configuration from config.json
     with open('config.json', 'r') as config_file:
         config = json.load(config_file)
 
     assistant_name = config['assistant_name']
-    assistant = Assistant(declared_skills)
     cprint(f"Welcome to {assistant_name}, your command line assistant!", 'yellow', 'on_red', attrs=['bold', 'blink'])
     cprint("Type 'help' for a list of commands or 'exit' to quit.", 'yellow')
 
-    conversation_history = []  # Initialize an empty conversation history
+    assistant = Assistant(declared_skills)
+    conversation_history = []
 
     while True:
         user_input = input(colored("User>😎📞", 'green'))
@@ -70,14 +85,14 @@ if __name__ == "__main__":
             break
         else:
             user_sentence = user_input
-        
-        # Add the user's message to the conversation history
+
         conversation_history.append({"role": "user", "content": user_sentence})
-        
-        # Pass the conversation history to get_response
+
         assistant_response, skill_logs = assistant.get_response(user_sentence, conversation_history)
-        
-        # Add the assistant's response to the conversation history
+
         conversation_history.append({"role": "assistant", "content": assistant_response})
-        
-        speak((assistant_response, skill_logs), assistant_name)
+
+        if verbose_mode and skill_logs:
+            cprint(skill_logs, 'white')
+
+        speak((assistant_response, None), assistant_name)
