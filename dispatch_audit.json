@@ -27,5 +27,94 @@
       "message_id": "<ae3f8753-0991-4432-81f9-4740b25ae6ea@dispatch.local>",
       "checksum": "85e457d98c0df232b87a8f6110a8b867"
     }
+  },
+  {
+    "timestamp": "2024-09-20T22:47:45.250561",
+    "action": "create",
+    "dispatch_id": "46c9062a-1bc3-4d5c-9fe9-e73f23d75d9b",
+    "user": "Kody",
+    "details": {
+      "dispatch_id": "46c9062a-1bc3-4d5c-9fe9-e73f23d75d9b",
+      "content": "How I ping pong between different models for different tasks, how I use AI to build AI, how I get it done in any way I can, and then I can translate universally with AI to where I need it to go.",
+      "category": "AI utilization",
+      "mentions": [
+        "Kody"
+      ],
+      "tags": [
+        "AI",
+        "models",
+        "universal translation"
+      ],
+      "created_at": "2024-09-20T22:47:45.244728",
+      "created_by": "Kody",
+      "priority": "high",
+      "endorsements": [],
+      "reshares": [],
+      "reply_to": null,
+      "replies": [],
+      "thread_id": "46c9062a-1bc3-4d5c-9fe9-e73f23d75d9b",
+      "message_id": "<46c9062a-1bc3-4d5c-9fe9-e73f23d75d9b@dispatch.local>",
+      "checksum": "cfc5dda252db496b47a7ed8d60bf178d"
+    }
+  },
+  {
+    "timestamp": "2024-09-20T22:48:28.359004",
+    "action": "create",
+    "dispatch_id": "426e3505-aba8-4a9e-bf68-eda9b0f71d1b",
+    "user": "Kody",
+    "details": {
+      "dispatch_id": "426e3505-aba8-4a9e-bf68-eda9b0f71d1b",
+      "content": "Following up on: How I ping pong between different models for different tasks, how I use AI to build AI, how I get it done in any way I can, and then I can translate universally with AI to where I need it to go.",
+      "category": "follow-up",
+      "mentions": [],
+      "tags": [],
+      "created_at": "2024-09-20T22:48:28.352160",
+      "created_by": "Kody",
+      "priority": "normal",
+      "endorsements": [],
+      "reshares": [],
+      "reply_to": null,
+      "replies": [],
+      "thread_id": "426e3505-aba8-4a9e-bf68-eda9b0f71d1b",
+      "message_id": "<426e3505-aba8-4a9e-bf68-eda9b0f71d1b@dispatch.local>",
+      "checksum": "543d62de4969fcde9bf5ba4a9ac0df0e"
+    }
+  },
+  {
+    "timestamp": "2024-09-20T22:49:03.275447",
+    "action": "update",
+    "dispatch_id": "426e3505-aba8-4a9e-bf68-eda9b0f71d1b",
+    "user": "Kody",
+    "details": {
+      "content": "Changed from 'Following up on: How I ping pong between different models for different tasks, how I use AI to build AI, how I get it done in any way I can and then I can translate universally with AI to where I need it to go.' to 'Following up on: How I ping pong between different models for different tasks, how I use AI to build AI, how I get it done in any way I can, and then I can translate universally with AI to where I need it to go.'"
+    }
+  },
+  {
+    "timestamp": "2024-09-20T22:51:37.590771",
+    "action": "create",
+    "dispatch_id": "1d8cfbdf-17a8-44ed-9943-acb221b75332",
+    "user": "Kody",
+    "details": {
+      "dispatch_id": "1d8cfbdf-17a8-44ed-9943-acb221b75332",
+      "content": "Defining how we could utilize dispatch protocol to share skills and messages between assistants that have the dispatch skill.",
+      "category": "workflow",
+      "mentions": [],
+      "tags": [
+        "skills",
+        "messages",
+        "protocol",
+        "sharing"
+      ],
+      "created_at": "2024-09-20T22:51:37.584650",
+      "created_by": "Kody",
+      "priority": "high",
+      "endorsements": [],
+      "reshares": [],
+      "reply_to": null,
+      "replies": [],
+      "thread_id": "1d8cfbdf-17a8-44ed-9943-acb221b75332",
+      "message_id": "<1d8cfbdf-17a8-44ed-9943-acb221b75332@dispatch.local>",
+      "checksum": "2a04c1ea12605e5026a5b87c73e15399"
+    }
   }
 ]
