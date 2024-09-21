@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enhanced Memory Network Graph</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 50px 0 0 0; /* 50px vertical spacing at the top */
+            overflow: hidden;
+            position: relative;
+        }
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        #controls input, #controls select, #controls button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        #graph {
+            width: 100%;
+            height: calc(100vh - 50px);
+            position: relative;
+            background-color: #f9f9f9;
+        }
+        #details {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        #details h3 {
+            margin-top: 0;
+        }
+        #legend {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+        /* Tooltip styling */
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+            z-index: 1001;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input type="file" id="fileUpload" accept=".json">
+        <label for="filter">Filter:</label>
+        <select id="filter">
+            <option value="all">All Themes</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search entities...">
+        <button id="resetView">Reset View</button>
+    </div>
+    <div id="graph"></div>
+    <div id="details"></div>
+    <div id="legend"></div>
+    <div id="tooltip" class="tooltip" style="display: none;"></div>
+
+    <script>
+        // Initialize variables
+        let memoryData = {};
+        let nodes = [];
+        let links = [];
+        let themes = new Set();
+        let themeColors = {};
+        let selectedTheme = 'all';
+        let searchQuery = '';
+        let zoomLevel = 1;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let startPan = {x: 0, y: 0};
+        let draggingNode = null;
+        let tooltip = document.getElementById('tooltip');
+        let animationFrameId;
+
+        // DOM elements
+        const fileUpload = document.getElementById('fileUpload');
+        const filterSelect = document.getElementById('filter');
+        const searchInput = document.getElementById('searchInput');
+        const resetViewBtn = document.getElementById('resetView');
+        const graphContainer = document.getElementById('graph');
+        const detailsContainer = document.getElementById('details');
+        const legendContainer = document.getElementById('legend');
+
+        // Event listeners
+        fileUpload.addEventListener('change', handleFileUpload);
+        filterSelect.addEventListener('change', handleFilterChange);
+        searchInput.addEventListener('input', handleSearch);
+        resetViewBtn.addEventListener('click', resetView);
+        window.addEventListener('resize', render);
+
+        // Utility Functions
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (validateMemoryData(data)) {
+                            memoryData = data;
+                            processData();
+                            assignThemeColors();
+                            populateFilterOptions();
+                            createLegend();
+                            render();
+                        } else {
+                            throw new Error('Invalid data format.');
+                        }
+                    } catch (error) {
+                        console.error("Error processing file:", error);
+                        alert("Error processing the file: " + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function validateMemoryData(data) {
+            return Object.values(data).every(entry => 
+                entry.message && entry.theme && entry.date && entry.time
+            );
+        }
+
+        function processData() {
+            nodes = [];
+            links = [];
+            themes.clear();
+            const entityMap = new Map();
+
+            // Extract entities and themes
+            for (const key in memoryData) {
+                const entry = memoryData[key];
+                const message = entry.message;
+                const theme = entry.theme;
+                themes.add(theme);
+
+                // Simple entity extraction: capitalize words and acronyms
+                const entities = message.match(/([A-Z][a-z]+|[A-Z]{2,})/g);
+                if (entities) {
+                    entities.forEach(entity => {
+                        if (!entityMap.has(entity)) {
+                            const node = {
+                                id: entity,
+                                label: entity,
+                                theme: theme,
+                                x: Math.random() * graphContainer.clientWidth,
+                                y: Math.random() * graphContainer.clientHeight
+                            };
+                            nodes.push(node);
+                            entityMap.set(entity, node);
+                        }
+                    });
+
+                    // Create links between entities within the same message
+                    for (let i = 0; i < entities.length; i++) {
+                        for (let j = i + 1; j < entities.length; j++) {
+                            links.push({
+                                source: entityMap.get(entities[i]),
+                                target: entityMap.get(entities[j]),
+                                theme: theme
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        function assignThemeColors() {
+            const colorPalette = [
+                '#FF6347', '#1E90FF', '#32CD32', '#FFD700', '#FF69B4',
+                '#8A2BE2', '#00CED1', '#FF8C00', '#ADFF2F', '#DC143C'
+            ];
+            let index = 0;
+            themes.forEach(theme => {
+                themeColors[theme] = colorPalette[index % colorPalette.length];
+                index++;
+            });
+        }
+
+        function populateFilterOptions() {
+            filterSelect.innerHTML = '<option value="all">All Themes</option>';
+            themes.forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme;
+                option.textContent = theme;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        function createLegend() {
+            legendContainer.innerHTML = '';
+            for (const [theme, color] of Object.entries(themeColors)) {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `<span class="legend-color" style="background-color: ${color};"></span>${theme}`;
+                legendContainer.appendChild(legendItem);
+            }
+        }
+
+        function handleFilterChange(event) {
+            selectedTheme = event.target.value;
+            render();
+        }
+
+        function handleSearch(event) {
+            searchQuery = event.target.value.toLowerCase();
+            render();
+        }
+
+        function resetView() {
+            zoomLevel = 1;
+            panX = 0;
+            panY = 0;
+            render();
+        }
+
+        function render() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            animationFrameId = requestAnimationFrame(() => {
+                // Clear previous SVG
+                graphContainer.innerHTML = '';
+
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, "svg");
+                svg.setAttribute("width", "100%");
+                svg.setAttribute("height", "100%");
+                svg.style.cursor = isPanning ? 'grabbing' : 'grab';
+
+                // Create a group for pan and zoom
+                const g = document.createElementNS(svgNS, "g");
+                g.setAttribute("transform", `translate(${panX}, ${panY}) scale(${zoomLevel})`);
+                svg.appendChild(g);
+
+                // Draw links
+                links.forEach(link => {
+                    if (shouldDisplayLink(link)) {
+                        const line = document.createElementNS(svgNS, "line");
+                        line.setAttribute("x1", link.source.x);
+                        line.setAttribute("y1", link.source.y);
+                        line.setAttribute("x2", link.target.x);
+                        line.setAttribute("y2", link.target.y);
+                        line.setAttribute("stroke", themeColors[link.theme] || '#999');
+                        line.setAttribute("stroke-width", 1);
+                        line.setAttribute("opacity", 0.6);
+                        g.appendChild(line);
+                    }
+                });
+
+                // Draw nodes
+                nodes.forEach(node => {
+                    if (shouldDisplayNode(node)) {
+                        // Circle
+                        const circle = document.createElementNS(svgNS, "circle");
+                        circle.setAttribute("cx", node.x);
+                        circle.setAttribute("cy", node.y);
+                        circle.setAttribute("r", 8);
+                        circle.setAttribute("fill", themeColors[node.theme] || '#CCCCCC');
+                        circle.setAttribute("stroke", '#fff');
+                        circle.setAttribute("stroke-width", 1.5);
+                        circle.style.cursor = 'pointer';
+
+                        // Event listeners for interactivity
+                        circle.addEventListener('mouseenter', (e) => showTooltip(e, node));
+                        circle.addEventListener('mouseleave', hideTooltip);
+                        circle.addEventListener('click', () => showDetails(node));
+
+                        // Dragging
+                        circle.addEventListener('mousedown', (e) => startDrag(e, node));
+
+                        g.appendChild(circle);
+
+                        // Labels
+                        const text = document.createElementNS(svgNS, "text");
+                        text.setAttribute("x", node.x + 12);
+                        text.setAttribute("y", node.y + 4);
+                        text.textContent = node.label;
+                        text.style.fontSize = "12px";
+                        text.style.userSelect = "none";
+                        g.appendChild(text);
+                    }
+                });
+
+                graphContainer.appendChild(svg);
+            });
+        }
+
+        function shouldDisplayNode(node) {
+            const matchesFilter = selectedTheme === 'all' || node.theme === selectedTheme;
+            const matchesSearch = node.label.toLowerCase().includes(searchQuery);
+            return matchesFilter && matchesSearch;
+        }
+
+        function shouldDisplayLink(link) {
+            const matchesFilter = selectedTheme === 'all' || link.theme === selectedTheme;
+            return matchesFilter;
+        }
+
+        function showDetails(node) {
+            const relatedEntries = Object.values(memoryData).filter(entry => 
+                entry.message.includes(node.label)
+            );
+
+            let detailsHTML = `<h3>${node.label}</h3>`;
+            detailsHTML += `<p><strong>Theme:</strong> ${node.theme}</p>`;
+            detailsHTML += `<p><strong>Related Entries:</strong></p>`;
+            if (relatedEntries.length > 0) {
+                relatedEntries.forEach(entry => {
+                    detailsHTML += `
+                        <div class="message">
+                            <p><strong>Message:</strong> ${entry.message}</p>
+                            <p><strong>Mood:</strong> ${entry.mood}</p>
+                            <p><strong>Date:</strong> ${entry.date} ${entry.time}</p>
+                        </div>
+                        <hr>
+                    `;
+                });
+            } else {
+                detailsHTML += "<p>No related messages found.</p>";
+            }
+
+            detailsContainer.innerHTML = detailsHTML;
+            detailsContainer.style.display = "block";
+        }
+
+        function showTooltip(event, node) {
+            tooltip.style.display = 'block';
+            tooltip.innerHTML = `<strong>${node.label}</strong><br>${node.theme}`;
+            positionTooltip(event);
+        }
+
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        function positionTooltip(event) {
+            const tooltipRect = tooltip.getBoundingClientRect();
+            let x = event.clientX + 10;
+            let y = event.clientY + 10;
+
+            if (x + tooltipRect.width > window.innerWidth) {
+                x = event.clientX - tooltipRect.width - 10;
+            }
+            if (y + tooltipRect.height > window.innerHeight) {
+                y = event.clientY - tooltipRect.height - 10;
+            }
+
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${y}px`;
+        }
+
+        // Dragging Functions
+        function startDrag(event, node) {
+            event.preventDefault();
+            draggingNode = node;
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        function drag(event) {
+            if (draggingNode) {
+                const svgRect = graphContainer.getBoundingClientRect();
+                const svg = graphContainer.querySelector('svg');
+                const CTM = svg.getScreenCTM();
+                const x = (event.clientX - CTM.e - panX) / zoomLevel;
+                const y = (event.clientY - CTM.f - panY) / zoomLevel;
+                draggingNode.x = x;
+                draggingNode.y = y;
+                render();
+            }
+        }
+
+        function endDrag() {
+            draggingNode = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+        }
+
+        // Pan and Zoom
+        graphContainer.addEventListener('mousedown', (event) => {
+            if (event.target.tagName === 'svg' || event.target.tagName === 'g') {
+                isPanning = true;
+                startPan = {x: event.clientX - panX, y: event.clientY - panY};
+                graphContainer.style.cursor = 'grabbing';
+            }
+        });
+
+        graphContainer.addEventListener('mousemove', (event) => {
+            if (isPanning) {
+                panX = event.clientX - startPan.x;
+                panY = event.clientY - startPan.y;
+                render();
+            }
+        });
+
+        graphContainer.addEventListener('mouseup', () => {
+            isPanning = false;
+            graphContainer.style.cursor = 'grab';
+        });
+
+        graphContainer.addEventListener('mouseleave', () => {
+            isPanning = false;
+            graphContainer.style.cursor = 'grab';
+        });
+
+        graphContainer.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const delta = event.deltaY > 0 ? -0.1 : 0.1;
+            zoomLevel = Math.min(Math.max(0.5, zoomLevel + delta), 3);
+            render();
+        });
+
+        // Close details on clicking outside
+        document.addEventListener('click', (event) => {
+            if (!detailsContainer.contains(event.target) && !event.target.matches('.node')) {
+                detailsContainer.style.display = 'none';
+            }
+        });
+
+        // Initial Render
+        render();
+    </script>
+</body>
+</html>
