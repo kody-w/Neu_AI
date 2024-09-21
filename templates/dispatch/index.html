@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispatch Manager</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+</head>
+<body>
+
+<div id="app" class="container mt-5">
+    <h1>Dispatch Manager</h1>
+
+    <!-- Form to create a dispatch -->
+    <h3>Create New Dispatch</h3>
+    <form @submit.prevent="createDispatch">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input v-model="newDispatch.title" type="text" class="form-control" id="title" placeholder="Enter dispatch title" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea v-model="newDispatch.content" class="form-control" id="content" rows="3" placeholder="Enter dispatch content" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input v-model="newDispatch.category" type="text" class="form-control" id="category" placeholder="Enter category (e.g., 'news', 'task')">
+        </div>
+
+        <div class="mb-3">
+            <label for="people_involved" class="form-label">People Involved</label>
+            <input v-model="newDispatch.people_involved" type="text" class="form-control" id="people_involved" placeholder="Comma-separated names (e.g., 'Alice, Bob')">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Dispatch</button>
+    </form>
+
+    <hr>
+
+    <!-- Section to view all dispatches -->
+    <h3>All Dispatches</h3>
+    <ul class="list-group">
+        <li v-for="dispatch in dispatches" :key="dispatch.id" class="list-group-item">
+            <a href="#" @click="viewDispatch(dispatch.id)">{{ dispatch.title }} ({{ dispatch.category }})</a>
+        </li>
+    </ul>
+
+    <hr>
+
+    <!-- Section to view a single dispatch -->
+    <div v-if="selectedDispatch">
+        <h3>Dispatch Details</h3>
+        <p><strong>Title:</strong> {{ selectedDispatch.title }}</p>
+        <p><strong>Content:</strong> {{ selectedDispatch.content }}</p>
+        <p><strong>Category:</strong> {{ selectedDispatch.category }}</p>
+        <p><strong>People Involved:</strong> {{ selectedDispatch.people_involved }}</p>
+        <button class="btn btn-danger" @click="deleteDispatch(selectedDispatch.id)">Delete Dispatch</button>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            newDispatch: {
+                title: '',
+                content: '',
+                category: '',
+                people_involved: ''
+            },
+            dispatches: [],
+            selectedDispatch: null
+        },
+        created() {
+            this.loadDispatches();
+        },
+        methods: {
+            loadDispatches() {
+                // Load dispatches from localStorage
+                const dispatches = JSON.parse(localStorage.getItem('dispatches')) || [];
+                this.dispatches = dispatches;
+            },
+            saveDispatches() {
+                // Save dispatches to localStorage
+                localStorage.setItem('dispatches', JSON.stringify(this.dispatches));
+            },
+            createDispatch() {
+                const newId = Date.now();
+                const newDispatch = {
+                    id: newId,
+                    title: this.newDispatch.title,
+                    content: this.newDispatch.content,
+                    category: this.newDispatch.category,
+                    people_involved: this.newDispatch.people_involved
+                };
+                this.dispatches.push(newDispatch);
+                this.saveDispatches();
+                this.clearForm();
+            },
+            viewDispatch(id) {
+                this.selectedDispatch = this.dispatches.find(dispatch => dispatch.id === id);
+            },
+            deleteDispatch(id) {
+                this.dispatches = this.dispatches.filter(dispatch => dispatch.id !== id);
+                this.saveDispatches();
+                this.selectedDispatch = null;
+            },
+            clearForm() {
+                this.newDispatch.title = '';
+                this.newDispatch.content = '';
+                this.newDispatch.category = '';
+                this.newDispatch.people_involved = '';
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -54,13 +54,14 @@
       .navbar {
         background-color: #fff;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         border-radius: 15px;
         position: relative;
+        padding: 5px 0;
       }
 
       .navbar-brand {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: bold;
         color: var(--primary-color);
         display: flex;
@@ -68,31 +69,32 @@
       }
 
       #ai-mood {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         margin-right: 0.5rem;
       }
 
       .hero-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 15px;
-        padding: 30px;
+        padding: 15px;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         color: #fff;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.5s ease;
       }
 
       .hero-section h1 {
-        font-size: 2.5em;
+        font-size: 2rem;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .hero-section h3 {
-        font-size: 1.4em;
+        font-size: 1.2em;
         font-weight: 300;
+        margin-bottom: 0;
       }
 
       #chat-container {
@@ -768,6 +770,21 @@
           $("#ai-mood").text(moods[Math.floor(Math.random() * moods.length)]);
         }
 
+        function hideHeroShowNavbar() {
+          $("#hero-section").addClass("fade-out");
+          setTimeout(function () {
+            $("#hero-section").hide();
+            $(".navbar").fadeIn();
+            adjustLayout();
+          }, 500);
+        }
+
+        function showHeroHideNavbar() {
+          $(".navbar").hide();
+          $("#hero-section").removeClass("fade-out").show();
+          adjustLayout();
+        }
+
         function sendMessage(userInput) {
           if (userInput === "") return;
 
@@ -779,11 +796,7 @@
           showLoadingAnimation();
 
           if ($("#hero-section").is(":visible")) {
-            $("#hero-section").addClass("fade-out");
-            setTimeout(function () {
-              $("#hero-section").hide();
-              adjustLayout();
-            }, 500);
+            hideHeroShowNavbar();
           }
 
           scrollToBottom();
@@ -942,6 +955,7 @@
             spread: 70,
             origin: { y: 0.6 },
           });
+          showHeroHideNavbar();
         }
 
         function adjustLayout() {
@@ -1058,10 +1072,10 @@
 
             initialMessages.forEach(function (message) {
               var messageHtml = `
-              <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
-                <strong>${assistantName}:</strong> ${message.message}
-              </div>
-            `;
+      <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
+        <strong>${assistantName}:</strong> ${message.message}
+      </div>
+    `;
               addMessageWithAnimation(messageHtml);
               updateMessageHistory("assistant", messageHtml);
             });
@@ -1238,7 +1252,14 @@
 
         // Initialize
         loadMessageHistory();
-        setTimeout(addInitialMessages, 1000);
+        setTimeout(function () {
+          if (conversationHistory.length === 0) {
+            showHeroHideNavbar();
+            addInitialMessages();
+          } else {
+            hideHeroShowNavbar();
+          }
+        }, 1000);
         adjustLayout();
         $(window).on("resize orientationchange", adjustLayout);
       });
