@@ -36,6 +36,7 @@ def load_skills_from_folder():
     return declared_skills
 
 def filter_text(text):
+    # Remove any characters that are not alphanumeric, space, or punctuation
     filtered_text = re.sub(r'[^a-zA-Z0-9\s\.,!?]', '', text)
     return filtered_text
 
@@ -51,12 +52,12 @@ def speak(response, assistant_name):
 if __name__ == "__main__":
     declared_skills = load_skills_from_folder()
 
+    # Load configuration from config.json
     with open('config.json', 'r') as config_file:
         config = json.load(config_file)
 
     assistant_name = config['assistant_name']
     assistant = Assistant(declared_skills)
-
     cprint(f"Welcome to {assistant_name}, your command line assistant!", 'yellow', 'on_red', attrs=['bold', 'blink'])
     cprint("Type 'help' for a list of commands or 'exit' to quit.", 'yellow')
 

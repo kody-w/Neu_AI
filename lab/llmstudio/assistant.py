@@ -11,11 +11,18 @@ class Assistant():
         with open('config.json', 'r') as config_file:
             self.config = json.load(config_file)
 
-        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        # Load API keys from api_keys.json
+        with open('config/api_keys.json', 'r') as api_keys_file:
+            api_keys = json.load(api_keys_file)
+
+        self.client = OpenAI(
+            base_url=api_keys['local_api_base_url'],
+            api_key=api_keys['local_api_key']
+        )
 
         self.known_skills = self.reload_skills(declared_skills)
 
-        # Load context memory
+        # Load context memory instead of AI internal dialogue
         self.load_context_memory()
 
     def load_context_memory(self):
@@ -66,8 +73,8 @@ class Assistant():
         response = self.client.chat.completions.create(
             model="hugging-quants/Llama-3.2-3B-Instruct-Q8_0-GGUF",
             messages=messages,
-            temperature=0.7,
-            stream=True
+            functions=self.get_skill_metadata(),
+            function_call="auto"
         )
         return response
 
@@ -81,13 +88,37 @@ class Assistant():
         while retry_count < max_retries:
             try:
                 response = self.get_openai_api_call(messages)
-                assistant_msg = ""
-                for chunk in response:
-                    if chunk.choices[0].delta.content:
-                        assistant_msg += chunk.choices[0].delta.content
+                assistant_msg = response.choices[0].message
+                msg_contents = assistant_msg.content
 
-                self.save_important_context(assistant_msg)
-                return assistant_msg, "\n".join(skill_logs)
+                if not assistant_msg.function_call:
+                    self.save_important_context(msg_contents)
+                    return msg_contents, "\n".join(skill_logs)
+
+                skill_name = assistant_msg.function_call.name
+                skill = self.known_skills.get(skill_name)
+
+                if not skill:
+                    return f"{skill_name} Does not Exist", ""
+
+                json_data = assistant_msg.function_call.arguments
+                print(f"JSON data before parsing: {json_data}")
+
+                if isinstance(json_data, str):
+                    json_data = json_data.strip()
+                    if not json_data.startswith('{') or not json_data.endswith('}'):
+                        return "Invalid JSON data format", ""
+
+                try:
+                    skill_parameters = json.loads(json_data)
+                except json.JSONDecodeError as e:
+                    return f"Error parsing JSON data: {str(e)}", ""
+
+                result = skill.perform(**skill_parameters)
+                skill_logs.append(
+                    f"Performed {skill_name} and got the following result: {result}")
+
+                messages.append({"role": "function", "name": skill_name, "content": result})
 
             except Exception as e:
                 retry_count += 1
