@@ -1,12 +1,12 @@
 {
   "local_api_base_url": "http://localhost:1234/v1",
   "local_api_key": "lm-studio",
-  "openai": "sk-proj-oWmrSGeMueM3boXb1C3RT3BlbkFJv9eGSrQ5EOb27sbmgbNa",
-  "azure_openai_endpoint": "https://dallekjw.openai.azure.com/",
-  "azure_openai_api_key": "b55090626ddf40d693720e9d341e258e",
+  "openai": "sk-proj",
+  "azure_openai_endpoint": "https://.openai.azure.com/",
+  "azure_openai_api_key": "",
   "azure_openai_api_version": "2024-05-01-preview",
-  "dalle_azure_endpoint": "https://dallekjw.openai.azure.com",
-  "dalle_api_key": "b55090626ddf40d693720e9d341e258e",
+  "dalle_azure_endpoint": "https://.openai.azure.com",
+  "dalle_api_key": "",
   "dalle_api_version": "2024-02-01",
   "DYNAMICS_365": {
     "CLIENT_ID": "3d30a9c5-5296-4a1e-8eff-6056806f2b6c",

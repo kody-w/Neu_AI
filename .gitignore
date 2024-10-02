@@ -217,3 +217,4 @@ utilities/concatenated.py
 utilities/concatenated.py
 memory_summary_cache.json
 dynamics365_vector_db.json
+lab/llmstudio/config/api_keys.json
