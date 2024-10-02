@@ -1,0 +1,15 @@
+{
+  "openai": "sk-proj-oWmrSGeMueM3boXb1C3RT3BlbkFJv9eGSrQ5EOb27sbmgbNa",
+  "azure_openai_endpoint": "https://dallekjw.openai.azure.com/",
+  "azure_openai_api_key": "b55090626ddf40d693720e9d341e258e",
+  "azure_openai_api_version": "2024-02-15-preview",
+  "dalle_azure_endpoint": "https://dallekjw.openai.azure.com",
+  "dalle_api_key": "b55090626ddf40d693720e9d341e258e",
+  "dalle_api_version": "2024-02-01",
+  "DYNAMICS_365": {
+    "CLIENT_ID": "3d30a9c5-5296-4a1e-8eff-6056806f2b6c",
+    "CLIENT_SECRET": "lag8Q~3TBveOzxBiluvDhG1cPbrXN19GZr2bBcTD",
+    "TENANT_ID": "4fa68dbc-c65a-48b6-9b32-743757485bd6",
+    "RESOURCE": "https://orgd95ed1dd.crm.dynamics.com/"
+  }
+}

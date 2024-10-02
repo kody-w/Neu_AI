@@ -1,99 +1,107 @@
 from openai import OpenAI
 import json
 import os
+import sys
 from datetime import datetime
 import time
 
 class Assistant():
     def __init__(self, declared_skills):
         with open('config.json', 'r') as config_file:
-            self.config = json.load(config_file)
+            config = json.load(config_file)
+
+        current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+        self.conversation_transcript = [
+            {
+                "role": "system",
+                "content": f"You are a helpful assistant named {config['assistant_name']}. Act as {config['assistant_name']} in the first person. Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. You can also chat with me. Speak as if you are a {config['characteristic_description']}. The current date and time is {current_datetime}. Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable. Encourage the user to respond and interact with you. Always provide numbered options for the user to choose from in your responses to guide them along in the simulation."
+            }
+        ]
+
+        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
 
         self.known_skills = self.reload_skills(declared_skills)
+        
         self.load_ai_internal_dialogue()
-
-        # Initialize OpenAI client for local LLM
-        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
-        self.model = "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF"
 
     def load_ai_internal_dialogue(self):
         log_file_path = "ai_internal_dialogue.log"
         if os.path.exists(log_file_path):
             with open(log_file_path, 'r', encoding='utf-8') as log_file:
                 lines = log_file.readlines()
-                recent_lines = lines[-20:]  # Get the last 20 lines
-                self.ai_internal_dialogue = "".join(recent_lines)
+                recent_lines = lines[-20:]
+                ai_internal_dialogue = "".join(recent_lines)
+            self.conversation_transcript.append({
+                "role": "system",
+                "content": f"The following is a log of your most recent interactions with the user, which you can leverage in the current conversation if relevant. These interactions provide context about the user's interests, preferences, and previous discussions. Use this information to personalize your responses and maintain continuity in the conversation.\n\nAI Internal Dialogue Context:\n{ai_internal_dialogue}"
+            })
         else:
-            self.ai_internal_dialogue = ""
             print(f"AI internal dialogue log file not found at {log_file_path}")
 
     def get_skill_metadata(self):
-        return [skill.metadata for skill in self.known_skills.values()]
+        skills_metadata = []
+        for skill in self.known_skills.values():
+            skills_metadata.append(skill.metadata)
+        return skills_metadata
 
     def reload_skills(self, skill_objects):
-        return {skill.name: skill for skill in skill_objects}
+        known_skills = {}
+        for skill in skill_objects:
+            known_skills[skill.name] = skill
+        return known_skills
 
-    def prepare_messages(self, conversation_history):
-        current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        system_message = f"""You are a helpful assistant named {self.config['assistant_name']}. 
-        Act as {self.config['assistant_name']} in the first person. 
-        Do not sound or act like an AI. You have memory and should utilize, manage, and save it like a human would remember context from interactions. 
-        You can also chat with me. Speak as if you are a {self.config['characteristic_description']}. 
-        The current date and time is {current_datetime}. 
-        Guide the user along based on the narrative situation, providing personalized greetings, answers to their questions, and reassuring words to make them feel comfortable. 
-        Encourage the user to respond and interact with you. 
-        Always provide numbered options for the user to choose from in your responses to guide them along in the simulation.
-        
-        You have access to the following skills: {', '.join(self.known_skills.keys())}. Use them when appropriate.
-        
-        AI Internal Dialogue Context:
-        {self.ai_internal_dialogue}
-        """
-        messages = [{"role": "system", "content": system_message}]
-        messages.extend(conversation_history)
-        return messages
+    def add_msg_to_transcript(self, role, content, name=None):
+        if content is not None:
+            if isinstance(content, (list, dict)):
+                content = json.dumps(content)
+            msg_dict = {"role": role, "content": content.strip() if isinstance(content, str) else content}
+            if role == "function":
+                msg_dict["name"] = name or "unknown_function"
+            self.conversation_transcript.append(msg_dict)
 
-    def get_lm_studio_response(self, messages):
-        try:
-            completion = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=0.7,
-            )
-            return completion.choices[0].message
-        except Exception as e:
-            print(f"Error calling LM Studio Server: {e}")
-            return None
+    def get_openai_api_call(self):
+        formatted_messages = []
+        for message in self.conversation_transcript:
+            if message["role"] == "function":
+                formatted_message = {
+                    "role": "function",
+                    "name": message.get("name", "unknown_function"),
+                    "content": message["content"]
+                }
+            else:
+                formatted_message = {
+                    "role": message["role"],
+                    "content": message["content"]
+                }
+            formatted_messages.append(formatted_message)
 
-    def get_response(self, prompt, conversation_history, max_retries=3, retry_delay=2):
-        messages = self.prepare_messages(conversation_history)
-        messages.append({"role": "user", "content": prompt})
+        response = self.client.chat.completions.create(
+            model="hugging-quants/Llama-3.2-3B-Instruct-Q8_0-GGUF",
+            messages=formatted_messages,
+            temperature=0.7,
+            stream=True
+        )
+        return response
+
+    def get_response(self, prompt, max_retries=3, retry_delay=2):
+        self.add_msg_to_transcript("user", prompt)
 
         skill_logs = []
         retry_count = 0
 
         while retry_count < max_retries:
             try:
-                # Check if the user is asking for a motivational quote
-                if any(keyword in prompt.lower() for keyword in ["motivational quote", "inspirational quote", "quote"]):
-                    quote_skill = self.known_skills.get("get_motivational_quote")
-                    if quote_skill:
-                        quote_result = quote_skill.perform()
-                        quote_data = json.loads(quote_result)
-                        skill_logs.append(f"Used skill: get_motivational_quote, Result: {quote_result}")
-                        
-                        # Prepare a message to send back to the LLM with the quote
-                        quote_message = f"Here's a motivational quote for you: '{quote_data['quote']}' - {quote_data['author']}"
-                        messages.append({"role": "function", "name": "get_motivational_quote", "content": quote_message})
-                    
-                # Get response from LLM
-                response = self.get_lm_studio_response(messages)
-                print("Debug - LLM Response:", response)
+                response = self.get_openai_api_call()
+                assistant_msg = ""
+                for chunk in response:
+                    if chunk.choices[0].delta.content:
+                        assistant_msg += chunk.choices[0].delta.content
 
-                if not response:
-                    raise Exception("Empty response from LM Studio Server")
-
-                return response.content, "\n".join(skill_logs)
+                self.add_msg_to_transcript("assistant", assistant_msg)
+                
+                self.save_important_context(assistant_msg)
+                
+                return assistant_msg, "\n".join(skill_logs)
 
             except Exception as e:
                 retry_count += 1
