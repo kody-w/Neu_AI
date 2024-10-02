@@ -41,10 +41,10 @@ def filter_text(text):
 
 def speak(response, assistant_name):
     text, additional_output = response
-
+    
     filtered_text = filter_text(text)
     cprint(assistant_name + f":🌐📞 {text}", 'cyan')
-
+    
     if additional_output:
         print(additional_output)
 
@@ -60,14 +60,23 @@ if __name__ == "__main__":
     cprint(f"Welcome to {assistant_name}, your command line assistant!", 'yellow', 'on_red', attrs=['bold', 'blink'])
     cprint("Type 'help' for a list of commands or 'exit' to quit.", 'yellow')
 
+    conversation_history = []  # Initialize an empty conversation history
+
     while True:
         user_input = input(colored("User>😎📞", 'green'))
-
         if user_input.lower() == 'exit':
             cprint(f"Goodbye from {assistant_name}! 👋", 'yellow')
             break
         else:
             user_sentence = user_input
-
-        assistant_response = assistant.get_response(user_sentence)
-        speak(assistant_response, assistant_name)
+        
+        # Add the user's message to the conversation history
+        conversation_history.append({"role": "user", "content": user_sentence})
+        
+        # Pass the conversation history to get_response
+        assistant_response, skill_logs = assistant.get_response(user_sentence, conversation_history)
+        
+        # Add the assistant's response to the conversation history
+        conversation_history.append({"role": "assistant", "content": assistant_response})
+        
+        speak((assistant_response, skill_logs), assistant_name)
