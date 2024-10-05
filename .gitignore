@@ -218,3 +218,6 @@ utilities/concatenated.py
 memory_summary_cache.json
 dynamics365_vector_db.json
 lab/llmstudio/config/api_keys.json
+lab/EchoGuardians
+lab/groq_llama3.2_cursor_poc
+lab/groq_llama3.2_cursor_poc
