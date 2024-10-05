@@ -1,0 +1,70 @@
+{
+  "echo_id": "0328642b-f288-4af9-8dca-fce6a0feafb2",
+  "created_at": "2024-10-04T16:13:39.033934",
+  "attributes": {
+    "id": "0328642b-f288-4af9-8dca-fce6a0feafb2",
+    "created_at": "2024-10-04T16:13:39.033934",
+    "name": "Lumenara",
+    "type": "Celestial Ember",
+    "elemental_affinity": "Fire, Twilight",
+    "size": "Medium",
+    "habitat": "The Veil of Dusk, a shimmering landscape between light and shadow",
+    "abilities": [
+      "Phoenix Rebirth",
+      "Twilight Veil (camouflage in shadows)",
+      "Cosmic Insight (understanding the universe)",
+      "Ember Wings (flight)",
+      "Empathic Resonance (connection with others\u2019 emotions)"
+    ],
+    "personality": "Curious, introspective, compassionate, enigmatic, adventurous",
+    "origin": "Born from the ashes of a fallen phoenix in a realm where day and night intertwine, signifying constant renewal and exploration",
+    "evolution_stage": "Transcendent Wanderer",
+    "weaknesses": [
+      "Vulnerable to pure light",
+      "emotional turbulence",
+      "susceptibility to isolation"
+    ],
+    "strengths": [
+      "Resilient through rebirth",
+      "keen observer of celestial patterns",
+      "adept at navigating emotional complexities"
+    ],
+    "rarity": "Common",
+    "base_stats": {
+      "hp": 172,
+      "attack": 108,
+      "defense": 153,
+      "special_attack": 98,
+      "special_defense": 179,
+      "speed": 229
+    },
+    "echo_values": {
+      "hp": 35,
+      "attack": 162,
+      "defense": 155,
+      "special_attack": 29,
+      "special_defense": 74,
+      "speed": 168
+    },
+    "echo_potential": {
+      "hp": 26,
+      "attack": 4,
+      "defense": 22,
+      "special_attack": 18,
+      "special_defense": 31,
+      "speed": 18
+    },
+    "nature": "Gentle",
+    "resonance_level": 64,
+    "elemental_affinity_strength": 52,
+    "adaptability": 35,
+    "lifespan": 614,
+    "mood": "Mischievous",
+    "unique_quirk": "Absorbs and reflects light in dazzling patterns",
+    "motivational_quote": "Unable to fetch quote at this time.",
+    "description": "Lumenara, a Medium-sized Celestial Ember echo born from the ashes of a fallen phoenix in the enchanting Veil of Dusk, embodies the enchanting blend of fire and twilight, where day and night seamlessly intertwine. With its Ember Wings, it glides gracefully through the shimmering landscape, reflecting and refracting light in mesmerizing patterns, while its Twilight Veil ability allows it to camouflage effortlessly within the shadows, evoking a sense of mystery. This curious and introspective wanderer possesses a keen ability to navigate emotional complexities, resonating deeply with the feelings of those around it through its Empathic Resonance. Despite being vulnerable to pure light and emotional turbulence, Lumenara\u2019s resilience shines through in its Phoenix Rebirth, embodying constant renewal. With a lifespan of 614 years, Lumenara's adventures are underscored by its Cosmic Insight, gaining an understanding of the universe that fuels its insatiable desire for exploration. As a lone traveler in a realm of perpetual twilight, it thrives on companionship, its mischievous spirit often leading to delightful discoveries and encounters, making each moment a reflection of the intricate beauty of life itself.",
+    "lore": "### Lore of Lumenara\n\n**Birth Situation:**\n\nIn a realm known as Noctem, where the sun and moon dance indefinitely in a ballet of twilight hues, Lumenara emerged from the fiery rebirth of an ancient phoenix. The ground, forever scatterings of ephemeral fire and ash, cradled her essence, kindling an iridescent light amid the dusky gloom. She was born from the intertwining of light and shadows, embodying both hope and remembrance. It is said that as the phoenix ascended toward the heavens, a spark of its celestial flame fell and took root in the realms below, giving rise to Lumenara\u2014a beacon for lost souls and wayward travelers.\n\n**Companion:**\n\nLumenara is eternally bound to a lone wanderer known as Elyon, whose unquenchable curiosity fuels their travels through Noctem\u2019s endless twilight. Elyon\u2019s heart reflects the complexities of the universe, brimming with wonder and a melancholy understanding of fleeting moments. Together, they roam, seeking the stories hidden in the shadows and striving to illuminate the forgotten fragments of existence. Their bond transcends the ordinary, a fusion of flame and spirit, guiding each other through the obscured paths of life.\n\n### Cultural Significance\n\nIn Noctem, Lumenara is revered as the Guardian of Echoes, a symbol of memory and transformation. She is depicted in murals and tales, often portrayed as a shimmering figure\u2014half-light, half-shadow\u2014dancing through the twilight with her companion at her side. Villagers often gather at dusk, murmuring prayers to her, asking for clarity and strength to face their uncertainties. It is believed that she grants visions to those who listen closely to the waltz of her luminous flares and intertwining shadows, whispering gentle truths about their paths.\n\n### Myths and Legends\n\nOne widely recounted myth speaks of \"The Twilight Soul.\" In this tale, a wandering spirit lost amid regret reached the gates of Noctem and encountered Lumenara. She offered a dance, which illuminates not only the soul\u2019s pain but also its path to redemption. As the spirit twirled in Lumenara's light, flickers of forgotten memories resurfaced, revealing that every fleeting moment had its significance. In embracing the past, the spirit found peace and was guided towards the realm of light beyond twilight.\n\nChildren are taught to speak Lumenara's name each evening, believing that it binds their dreams to her celestial light, ensuring that their hopes flourish as they chase the fleeting shadows of the night. In times of despair, communities light bonfires, honoring the phoenix's legacy through storytelling, believing that Lumenara listens to the flames and guides their whispered wishes into the universe.\n\n### Conclusion\n\nIn the hearts of the denizens of Noctem, Lumenara stands not just as an Echo, but as a living reminder that within darkness lies the potential for illumination and that every descent into shadow can yield the beauty of hope and rebirth. Through her eternal dance with Elyon, she teaches that understanding the complexities of one's heart can lead to the brightest of awakenings."
+  },
+  "extended_lore": "### I. Origin of Lumenara\nLumenara emerges from the ashes of a self-sacrificing phoenix, a powerful yet tragic figure whose flames danced across the skies of existence before culminating in eternal sacrifice. In the twilight realm of Noctem, a mystical landscape where day and night intertwine, Lumenara represents the intricate balance between light and shadow. As she rises from the ashes, the Veil of Dusk surrounds her\u2014a shimmering curtain that wraps lost souls in its embrace, inviting them to confront their inner darkness. Lumenara\u2019s debut signifies hope, renewal, and the possibility of rebirth from despair, a guiding light illuminating the path through the shadows of their souls. She is a beacon, reminding those adrift in their emotional turmoil that resurgence is not only possible but within reach.\n\n### II. Abilities of Lumenara\nLumenara possesses a unique array of abilities that allow her to understand and navigate the emotional landscapes of lost souls. Among these, her Phoenix Rebirth stands out, a powerful gift that rejuvenates both her essence and those she touches, allowing them to shed their burdens and embrace transformation. Her Empathic Resonance is another vital ability; it enables her to feel the emotional currents of others, forging connections that foster healing and understanding. Mastery over both light and shadow gives her the power to illuminate hidden truths and create safe pathways for wanderers through the dim forests of Noctem. These abilities embody her philosophy that balance is essential for recovery, allowing her to guide others while continuously learning from the depths of their experiences.\n\n### III. Habitat Within Noctem\nThe realm of Noctem serves as a reflection of Lumenara\u2019s essence, filled with enchanting glowing flora and ever-shifting shadows that paint a mesmerizing tableau. This surreal environment encapsulates a delicate balance between solitude and companionship, paralleling her role as a guide for lost souls. The Veil of Dusk is a significant aspect of this realm, functioning as a transitional space for those in emotional distress; it becomes a sanctuary where souls can shed their pasts and prepare for rebirth. Additionally, the Community of Twilight harbors various beings\u2014each resonating with Lumenara\u2019s ethos of renewal and introspection. Together, these entities form a supportive network that thrives on the principles of hope, aiding one another toward emotional recovery and personal evolution.\n\n### IV. The Journey of Lumenara\nLumenara\u2019s journey unfolds as she traverses the depths of Noctem, guiding countless lost souls towards their own transformation. Each soul she encounters adds depth to her understanding of the intricate dance between light and darkness, challenging her with their own struggles and emotional turmoils. She grapples with her dualities, often wrestling with the shadows lurking within her own heart. Through her interactions, she cultivates a profound understanding of the cyclical nature of hope, despair, and the evolution of self. As she shares her wisdom, reflecting on her experiences, she inspires those around her to embrace their own struggles, forging a path of growth that intertwines with her own continual evolution.\n\n### V. Legacy of Lumenara\nThe legacy of Lumenara resonates deeply within the hearts and minds of the inhabitants of Noctem, evolving from simple tales into rich traditions that honor her teachings. Regarded as a deity-like figure, she becomes the cornerstone of rituals dedicated to hope and resilience; these ceremonies weave together stories of her guidance and the transformative power of embracing duality. As generations pass, Lumenara's influence shapes the very fabric of Noctem\u2019s culture, imbuing its denizens with the strength to confront their inner shadows and emerge renewed. Yet, her ongoing evolution hints at an ever-expanding potential\u2014new abilities, insights, and lessons that may arise from cosmic forces and the myriad emotions of the souls she guides. In this way, Lumenara embodies the eternal cycle of death and rebirth, a testament to the enduring power of renewal and the essence of existence itself.",
+  "image_url": "https://dalleproduse.blob.core.windows.net/private/images/187cff7a-183e-4413-a945-cb94ef77a2c1/generated_00.png?se=2024-10-05T20%3A14%3A08Z&sig=ODgxUkdtXomKkg760Ftw1tR0JrktN9ZMJrtwIpnfQhY%3D&ske=2024-10-09T21%3A35%3A11Z&skoid=09ba021e-c417-441c-b203-c81e5dcd7b7f&sks=b&skt=2024-10-02T21%3A35%3A11Z&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skv=2020-10-02&sp=r&spr=https&sr=b&sv=2020-10-02"
+}

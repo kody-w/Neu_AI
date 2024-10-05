@@ -29,7 +29,7 @@ class ManageMemorySkill(BasicSkill):
                     },
                     "conversation_context": {
                         "type": "string",
-                        "description": "The context or content of the conversation to be saved as a memory."
+                        "description": "The context or content of the conversation to be saved as a memory. The context or content of the conversation to be saved as a memory that includes the person, place, or thing being discussed. Always be as specific as possible and not vague. Who, what, where, and why."
                     },
                     "companion_id": {
                         "type": "string",

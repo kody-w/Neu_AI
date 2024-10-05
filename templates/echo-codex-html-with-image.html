@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Pokedex</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .upload-section {
+            margin-bottom: 20px;
+        }
+        #error-message {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        #echo-display {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        blockquote {
+            font-style: italic;
+            border-left: 3px solid #3498db;
+            padding-left: 10px;
+            margin-left: 0;
+            background-color: #ecf0f1;
+        }
+        #echo-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Echo Pokedex</h1>
+    
+    <div class="upload-section">
+        <input type="file" id="json-upload" accept=".json">
+    </div>
+    
+    <div id="error-message"></div>
+    
+    <div id="echo-display"></div>
+
+    <script>
+        let echoData = null;
+
+        document.getElementById('json-upload').addEventListener('change', handleJSONUpload);
+
+        function handleJSONUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    echoData = data.attributes;
+                    document.getElementById('error-message').textContent = '';
+                    displayEcho(data);
+                } catch (err) {
+                    document.getElementById('error-message').textContent = "Error parsing JSON file. Please make sure it's a valid JSON file.";
+                    document.getElementById('echo-display').innerHTML = '';
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function displayEcho(data) {
+            if (!echoData) return;
+
+            const displayDiv = document.getElementById('echo-display');
+            let imageHTML = '';
+            
+            if (echoData.image && echoData.image.data) {
+                const imageData = `data:image/${echoData.image.format.toLowerCase()};base64,${echoData.image.data}`;
+                imageHTML = `<img id="echo-image" src="${imageData}" alt="Echo Image">`;
+            }
+
+            displayDiv.innerHTML = `
+                ${imageHTML}
+                <h2>${echoData.name}</h2>
+                <div class="grid">
+                    <div>
+                        <p><strong>Type:</strong> ${echoData.type}</p>
+                        <p><strong>Elemental Affinity:</strong> ${echoData.elemental_affinity}</p>
+                        <p><strong>Rarity:</strong> ${echoData.rarity}</p>
+                        <p><strong>Size:</strong> ${echoData.size}</p>
+                        <p><strong>Habitat:</strong> ${echoData.habitat}</p>
+                        <p><strong>Evolution Stage:</strong> ${echoData.evolution_stage}</p>
+                    </div>
+                    <div>
+                        <p><strong>Abilities:</strong></p>
+                        <ul>
+                            ${echoData.abilities.map(ability => `<li>${ability}</li>`).join('')}
+                        </ul>
+                        <p><strong>Weaknesses:</strong></p>
+                        <ul>
+                            ${echoData.weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
+                        </ul>
+                        <p><strong>Strengths:</strong></p>
+                        <ul>
+                            ${echoData.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <p><strong>Personality:</strong> ${echoData.personality}</p>
+                <p><strong>Origin:</strong> ${echoData.origin}</p>
+                <p><strong>Description:</strong> ${echoData.description}</p>
+                <div>
+                    <p><strong>Motivational Quote:</strong></p>
+                    <blockquote>${echoData.motivational_quote}</blockquote>
+                </div>
+                <h3>Extended Lore</h3>
+                <div>${data.extended_lore}</div>
+            `;
+        }
+    </script>
+</body>
+</html>
