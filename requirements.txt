@@ -13,11 +13,11 @@ openai==0.27.8
 # Data parsing
 python-dateutil==2.8.2
 
-# Web framework (if using Flask)
+# Web framework
 Flask==2.3.2
 
 # Azure OpenAI
-azure-openai==1.0.0
+openai[azure]
 
 # Utility libraries
 six==1.16.0
@@ -25,24 +25,3 @@ urllib3==1.26.16
 certifi==2023.5.7
 charset-normalizer==3.1.0
 idna==3.4
-
-# Logging (usually part of Python standard library, but listed for completeness)
-logging
-
-# Date and time handling (part of Python standard library)
-datetime
-
-# JSON handling (part of Python standard library)
-json
-
-# Base64 encoding (part of Python standard library)
-base64
-
-# File and path operations (part of Python standard library)
-os
-
-# Error tracing (part of Python standard library)
-traceback
-
-# Time-related functions (part of Python standard library)
-time
