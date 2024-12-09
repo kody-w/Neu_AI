@@ -2,23 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>📞 Neu AI Assistant</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css"/>
     <style>
       :root {
         --primary-color: #4a90e2;
@@ -253,17 +241,55 @@
         margin-top: 20px;
       }
 
-      .spinner-banana {
-        font-size: 2rem;
-        animation: rotate 2s linear infinite;
+      .spinner-earth {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
       }
 
-      @keyframes rotate {
-        0% {
-          transform: rotate(0deg);
+      .earth {
+        font-size: 2rem;
+        opacity: 0.7;
+      }
+
+      .earth:nth-child(1) {
+        animation: waveAndRotate1 1.5s infinite ease-in-out;
+      }
+
+      .earth:nth-child(2) {
+        animation: waveAndRotate2 1.5s infinite ease-in-out;
+        animation-delay: 0.2s;
+      }
+
+      .earth:nth-child(3) {
+        animation: waveAndRotate3 1.5s infinite ease-in-out;
+        animation-delay: 0.4s;
+      }
+
+      @keyframes waveAndRotate1 {
+        0%, 100% {
+          transform: translateY(0px);
         }
-        100% {
-          transform: rotate(360deg);
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      @keyframes waveAndRotate2 {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      @keyframes waveAndRotate3 {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-15px);
         }
       }
 
@@ -467,40 +493,6 @@
       }
 
       @media (max-width: 768px) {
-        .container-fluid {
-          padding: 10px;
-        }
-
-        .navbar {
-          margin-bottom: 10px;
-        }
-
-        .navbar-brand {
-          font-size: 1.2rem;
-        }
-
-        .hero-section {
-          padding: 15px;
-          margin-bottom: 10px;
-        }
-
-        .hero-section h1 {
-          font-size: 1.8em;
-        }
-
-        .hero-section h3 {
-          font-size: 1em;
-        }
-
-        #chat-container {
-          padding: 10px;
-        }
-
-        #chat-window {
-          padding: 10px;
-          margin-bottom: 10px;
-        }
-
         .message {
           max-width: 100%;
           padding: 8px 12px;
@@ -571,11 +563,7 @@
       }
 
       @keyframes bounce {
-        0%,
-        20%,
-        50%,
-        80%,
-        100% {
+        0%, 20%, 50%, 80%, 100% {
           transform: translateY(0);
         }
         40% {
@@ -617,7 +605,6 @@
         z-index: 9999;
       }
 
-      /* Improve visibility of the Analyze Image button in dark mode */
       body.dark-theme #analyze-image-btn {
         background-color: var(--primary-color);
         color: #ffffff;
@@ -629,7 +616,6 @@
         border-color: #3a7cbd;
       }
 
-      /* Make the theme toggle icon visible in dark mode */
       body.dark-theme #theme-toggle {
         color: #ffffff;
       }
@@ -638,7 +624,6 @@
         color: var(--primary-color);
       }
 
-      /* Improve visibility of the Upload Image button in dark mode */
       body.dark-theme #image-upload-label {
         background-color: var(--primary-color);
         color: #ffffff;
@@ -654,7 +639,6 @@
         border-color: #3a7cbd;
       }
 
-      /* Ensure the icon inside the button is visible */
       body.dark-theme #image-upload-label i {
         color: #ffffff;
       }
@@ -668,9 +652,9 @@
     <div class="container-fluid">
       <nav class="navbar navbar-light">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#"
-            ><span id="ai-mood" title="AI's current mood">😊</span>Neu AI</a
-          >
+          <a class="navbar-brand" href="#">
+            <span id="ai-mood" title="AI's current mood">😊</span>Neu AI
+          </a>
         </div>
       </nav>
 
@@ -683,32 +667,19 @@
         <div id="chat-container">
           <div id="chat-window"></div>
           <div class="loading-spinner-container" style="display: none">
-            <div
-              class="spinner-banana bounce"
-              role="status"
-              aria-label="Loading"
-            >
-              🌎🌎🌎
+            <div class="spinner-earth" role="status" aria-label="Loading">
+              <div class="earth">🌎</div>
+              <div class="earth">🌎</div>
+              <div class="earth">🌎</div>
             </div>
           </div>
           <div class="input-group">
-            <input
-              type="text"
-              id="user-input"
-              class="form-control"
-              placeholder="Type your message..."
-              aria-label="User input"
-            />
+            <input type="text" id="user-input" class="form-control" placeholder="Type your message..." aria-label="User input"/>
             <button class="btn btn-primary" type="button" id="send-button">
               <i class="fas fa-paper-plane"></i>
               <span class="sr-only">Send</span>
             </button>
-            <button
-              class="btn"
-              type="button"
-              id="voice-input-btn"
-              aria-label="Voice input"
-            >
+            <button class="btn" type="button" id="voice-input-btn" aria-label="Voice input">
               <i class="fas fa-microphone"></i>
             </button>
           </div>
@@ -723,16 +694,10 @@
           </div>
           <img id="image-preview" alt="Image preview" />
         </div>
-        <div id="example-buttons">
-          <!-- Example buttons will be dynamically added here -->
-        </div>
+        <div id="example-buttons"></div>
       </main>
     </div>
-    <button
-      id="clear-chat"
-      class="btn btn-danger btn-floating"
-      aria-label="Clear chat"
-    >
+    <button id="clear-chat" class="btn btn-danger btn-floating" aria-label="Clear chat">
       <i class="fas fa-trash"></i>
     </button>
     <div class="notification" id="notification"></div>
@@ -748,10 +713,7 @@
         var conversationHistory = [];
 
         function saveMessageHistory() {
-          localStorage.setItem(
-            "chatHistory",
-            JSON.stringify(conversationHistory)
-          );
+          localStorage.setItem("chatHistory", JSON.stringify(conversationHistory));
         }
 
         function loadMessageHistory() {
@@ -785,6 +747,39 @@
           adjustLayout();
         }
 
+        function rotateEarthEmojis() {
+          const emojis = ["🌎", "🌍", "🌏"];
+          const $earths = $(".earth");
+          let currentIndex = 0;
+
+          function updateEmojis() {
+            $earths.each((i, earth) => {
+              $(earth).text(emojis[(currentIndex + i) % 3]);
+            });
+            currentIndex = (currentIndex + 1) % 3;
+          }
+
+          updateEmojis();
+
+          if (window.earthRotationInterval) {
+            clearInterval(window.earthRotationInterval);
+          }
+
+          window.earthRotationInterval = setInterval(updateEmojis, 1000);
+        }
+
+        function showLoadingAnimation() {
+          $(".loading-spinner-container").show();
+          rotateEarthEmojis();
+        }
+
+        function hideLoadingAnimation() {
+          $(".loading-spinner-container").hide();
+          if (window.earthRotationInterval) {
+            clearInterval(window.earthRotationInterval);
+          }
+        }
+
         function sendMessage(userInput) {
           if (userInput === "") return;
 
@@ -814,8 +809,7 @@
               var skillLogs = response.additional_output;
               conversationHistory = response.conversation_history;
 
-              var formattedResponse =
-                formatAssistantResponse(assistantResponse);
+              var formattedResponse = formatAssistantResponse(assistantResponse);
               var assistantMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> <span class="typing-content">${formattedResponse}</span></div>`;
               addMessageWithAnimation(assistantMessage);
               updateMessageHistory("assistant", assistantMessage);
@@ -882,18 +876,10 @@
               .replace(/<li>/g, "<ul><li>")
               .replace(/<\/li>/g, "</li></ul>")
               .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-              .replace(
-                /```(\w+)?\n([\s\S]+?)```/g,
-                function (match, language, code) {
-                  return `<pre><code class="${
-                    language || ""
-                  }">${code.trim()}</code></pre>`;
-                }
-              )
-              .replace(
-                /\[([^\]]+)\]\(([^\)]+)\)/g,
-                '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-              );
+              .replace(/```(\w+)?\n([\s\S]+?)```/g, function (match, language, code) {
+                return `<pre><code class="${language || ""}">${code.trim()}</code></pre>`;
+              })
+              .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
           } catch (error) {
             console.error("Error formatting assistant response:", error);
             return "I'm sorry, I encountered an error while formatting my response.";
@@ -901,32 +887,22 @@
         }
 
         function formatSkillLogs(skillLogs) {
-          var truncatedLogs =
-            skillLogs.length > 80
-              ? skillLogs.substring(0, 80) + "..."
-              : skillLogs;
+          var truncatedLogs = skillLogs.length > 80 ? skillLogs.substring(0, 80) + "..." : skillLogs;
 
           var skillLogsHtml = `
-          <div class="message skill-logs-message">
-            <strong>Skills utilized:</strong><br>
-            <span class="skills-content">${truncatedLogs}</span>
-            ${
-              skillLogs.length > 80
-                ? '<span class="show-more-skills" style="color: var(--primary-color); cursor: pointer; text-decoration: underline;">Show more</span>'
-                : ""
-            }
-            <div class="full-skills" style="display: none;">${skillLogs}</div>
-          </div>
-        `;
+            <div class="message skill-logs-message">
+              <strong>Skills utilized:</strong><br>
+              <span class="skills-content">${truncatedLogs}</span>
+              ${skillLogs.length > 80 ? '<span class="show-more-skills" style="color: var(--primary-color); cursor: pointer; text-decoration: underline;">Show more</span>' : ""}
+              <div class="full-skills" style="display: none;">${skillLogs}</div>
+            </div>
+          `;
 
           return skillLogsHtml;
         }
 
         function scrollToBottom() {
-          $("#chat-window").animate(
-            { scrollTop: $("#chat-window")[0].scrollHeight },
-            500
-          );
+          $("#chat-window").animate({ scrollTop: $("#chat-window")[0].scrollHeight }, 500);
         }
 
         function applySyntaxHighlighting() {
@@ -959,310 +935,257 @@
         }
 
         function adjustLayout() {
-          const windowHeight = $(window).height();
-          const navbarHeight = $(".navbar").outerHeight();
-          const heroSectionHeight = $("#hero-section").is(":visible")
-            ? $("#hero-section").outerHeight()
-            : 0;
-          const exampleButtonsHeight = $("#example-buttons").outerHeight();
-          const inputGroupHeight = $(".input-group").outerHeight();
-          const imageUploadContainerHeight = $(
-            "#image-upload-container"
-          ).outerHeight();
-          const padding = 20;
+            const windowHeight = $(window).height();
+            const navbarHeight = $(".navbar").outerHeight();
+            const heroSectionHeight = $("#hero-section").is(":visible") ? $("#hero-section").outerHeight() : 0;
+            const exampleButtonsHeight = $("#example-buttons").outerHeight();
+            const inputGroupHeight = $(".input-group").outerHeight();
+            const imageUploadContainerHeight = $("#image-upload-container").outerHeight();
+            const padding = 20;
 
-          const availableHeight =
-            windowHeight -
-            navbarHeight -
-            heroSectionHeight -
-            exampleButtonsHeight -
-            inputGroupHeight -
-            imageUploadContainerHeight -
-            padding;
+            const availableHeight = windowHeight - navbarHeight - heroSectionHeight - exampleButtonsHeight - inputGroupHeight - imageUploadContainerHeight - padding;
 
-          $("#chat-container").css("height", availableHeight + "px");
-          $("#chat-window").css(
-            "height",
-            availableHeight -
-              inputGroupHeight -
-              imageUploadContainerHeight -
-              padding +
-              "px"
-          );
+            $("#chat-container").css("height", availableHeight + "px");
+            $("#chat-window").css("height", availableHeight - inputGroupHeight - imageUploadContainerHeight - padding + "px");
 
-          if ($(window).width() <= 576) {
-            $("body").css("font-size", "14px");
-          } else {
-            $("body").css("font-size", "16px");
+            if ($(window).width() <= 576) {
+              $("body").css("font-size", "14px");
+            } else {
+              $("body").css("font-size", "16px");
+            }
           }
-        }
 
-        function showLoadingAnimation() {
-          $(".loading-spinner-container").show();
-          $(".spinner-banana").addClass("bounce");
-        }
+          function addInitialMessages() {
+            if (conversationHistory.length === 0) {
+              var initialMessages = [
+                {
+                  message: `Hello! I'm ${assistantName}, your AI assistant. How can I help you today?`,
+                  prompt: "Hello! Can you tell me more about yourself?",
+                },
+                {
+                  message: "Here are some ways we can get started:",
+                  prompt: "",
+                },
+                {
+                  message: "1. Ask me about my capabilities and how I can assist you.",
+                  prompt: "What are your capabilities and how can you assist me?",
+                },
+                {
+                  message: "2. Ask me about what I know from past interactions.",
+                  prompt: "What do you know from our past interactions?",
+                },
+                {
+                  message: "3. Ask me who I know from your past interactions.",
+                  prompt: "Who do you know from our past interactions?",
+                },
+              ];
 
-        function hideLoadingAnimation() {
-          $(".loading-spinner-container").hide();
-          $(".spinner-banana").removeClass("bounce");
-        }
+              initialMessages.forEach(function (message) {
+                var messageHtml = `
+                  <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
+                    <strong>${assistantName}:</strong> ${message.message}
+                  </div>
+                `;
+                addMessageWithAnimation(messageHtml);
+                updateMessageHistory("assistant", messageHtml);
+              });
 
-        $("#send-button").click(function () {
-          sendMessage($("#user-input").val().trim());
-        });
-
-        $("#user-input").keypress(function (event) {
-          if (event.which === 13) {
-            event.preventDefault();
-            sendMessage($(this).val().trim());
+              scrollToBottom();
+            }
           }
-        });
 
-        $("#clear-chat").click(clearChat);
+          var examplePrompts = [
+            { emoji: "1️⃣", text: "1" },
+            { emoji: "2️⃣", text: "2" },
+            { emoji: "3️⃣", text: "3" },
+            { emoji: "4️⃣", text: "4" },
+            { emoji: "5️⃣", text: "5" },
+            {
+              emoji: "🤝",
+              text: "Provide a numbered list of the next three next best prompts using your current situation for the user to use next. These prompts should be written from the user's first person perspective so they dont have to change anything to use them.",
+            },
+            {
+              emoji: "🤖",
+              text: "Pick the best one of these prompts and take the action that is suggested.",
+            },
+          ];
 
-        $(document).on(
-          "click",
-          ".show-more-skills, .skills-content",
-          function () {
+          examplePrompts.forEach(function (prompt) {
+            $("#example-buttons").append(
+              `<button class="btn example-btn" data-example="${prompt.text}" title="${prompt.text}">${prompt.emoji}</button>`
+            );
+          });
+
+          function setTheme(theme) {
+            if (theme === "dark") {
+              $("body").addClass("dark-theme");
+              $("#theme-toggle i").removeClass("fa-moon").addClass("fa-sun");
+            } else {
+              $("body").removeClass("dark-theme");
+              $("#theme-toggle i").removeClass("fa-sun").addClass("fa-moon");
+            }
+          }
+
+          // Event Handlers
+          $("#send-button").click(function () {
+            sendMessage($("#user-input").val().trim());
+          });
+
+          $("#user-input").keypress(function (event) {
+            if (event.which === 13) {
+              event.preventDefault();
+              sendMessage($(this).val().trim());
+            }
+          });
+
+          $("#clear-chat").click(clearChat);
+
+          $(document).on("click", ".clickable-message", function () {
+            var prompt = $(this).data("prompt");
+            if (prompt) {
+              $("#user-input").val(prompt);
+              sendMessage(prompt);
+            }
+          });
+
+          $(document).on("click", ".example-btn", function () {
+            var exampleMessage = $(this).data("example");
+            $("#user-input").val(exampleMessage);
+            sendMessage(exampleMessage);
+          });
+
+          $(document).on("click", ".show-more-skills, .skills-content", function () {
             var $message = $(this).closest(".skill-logs-message");
             var $skillsContent = $message.find(".skills-content");
             var $fullSkills = $message.find(".full-skills");
             var $showMoreBtn = $message.find(".show-more-skills");
 
             if ($fullSkills.is(":visible")) {
-              // Shrink
               $skillsContent.text($fullSkills.text().substring(0, 80) + "...");
               $fullSkills.hide();
               $showMoreBtn.show();
             } else {
-              // Expand
               $skillsContent.text($fullSkills.text());
               $fullSkills.show();
               $showMoreBtn.hide();
             }
             scrollToBottom();
-          }
-        );
+          });
 
-        function addInitialMessages() {
-          if (conversationHistory.length === 0) {
-            var initialMessages = [
-              {
-                message: `Hello! I'm ${assistantName}, your AI assistant. How can I help you today?`,
-                prompt: "Hello! Can you tell me more about yourself?",
-              },
-              {
-                message: "Here are some ways we can get started:",
-                prompt: "",
-              },
-              {
-                message:
-                  "1. Ask me about my capabilities and how I can assist you.",
-                prompt: "What are your capabilities and how can you assist me?",
-              },
-              {
-                message: "2. Ask me about what I know from past interactions.",
-                prompt: "What do you know from our past interactions?",
-              },
-              {
-                message: "3. Ask me who I know from your past interactions.",
-                prompt: "Who do you know from our past interactions?",
-              },
-            ];
+          $("#theme-toggle").click(function () {
+            var currentTheme = $("body").hasClass("dark-theme") ? "dark" : "light";
+            var newTheme = currentTheme === "dark" ? "light" : "dark";
+            setTheme(newTheme);
+            localStorage.setItem("theme", newTheme);
+          });
 
-            initialMessages.forEach(function (message) {
-              var messageHtml = `
-      <div class="message assistant-message clickable-message" data-prompt="${message.prompt}">
-        <strong>${assistantName}:</strong> ${message.message}
-      </div>
-    `;
-              addMessageWithAnimation(messageHtml);
-              updateMessageHistory("assistant", messageHtml);
-            });
-
-            scrollToBottom();
-          }
-        }
-
-        $(document).on("click", ".clickable-message", function () {
-          var prompt = $(this).data("prompt");
-          if (prompt) {
-            $("#user-input").val(prompt);
-            sendMessage(prompt);
-          }
-        });
-
-        var examplePrompts = [
-          { emoji: "1️⃣", text: "1" },
-          { emoji: "2️⃣", text: "2" },
-          { emoji: "3️⃣", text: "3" },
-          { emoji: "4️⃣", text: "4" },
-          { emoji: "5️⃣", text: "5" },
-          {
-            emoji: "🤝",
-            text: "Provide a numbered list of the next three next best prompts using your current situation for the user to use next. These prompts should be written from the user's first person perspective so they dont have to change anything to use them.",
-          },
-          {
-            emoji: "🤖",
-            text: "Pick the best one of these prompts and take the action that is suggested.",
-          },
-        ];
-
-        examplePrompts.forEach(function (prompt) {
-          $("#example-buttons").append(
-            `<button class="btn example-btn" data-example="${prompt.text}" title="${prompt.text}">${prompt.emoji}</button>`
-          );
-        });
-
-        $(document).on("click", ".example-btn", function () {
-          var exampleMessage = $(this).data("example");
-          $("#user-input").val(exampleMessage);
-          sendMessage(exampleMessage);
-        });
-
-        // Voice input functionality
-        if (annyang) {
-          var commands = {
-            "*text": function (text) {
-              $("#user-input").val(text);
-              sendMessage(text);
-            },
-          };
-
-          annyang.addCommands(commands);
-
-          $("#voice-input-btn").on("click", function () {
-            if (annyang.isListening()) {
-              annyang.abort();
-              $(this).removeClass("listening");
-            } else {
-              annyang.start({ autoRestart: false, continuous: false });
-              $(this).addClass("listening");
-              showNotification("Listening...", "info");
+          $("#image-upload").on("change", function (event) {
+            var file = event.target.files[0];
+            if (file) {
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                $("#image-preview").attr("src", e.target.result).show();
+                $("#analyze-image-btn").show();
+              };
+              reader.readAsDataURL(file);
             }
           });
 
-          annyang.addCallback("result", function () {
-            $("#voice-input-btn").removeClass("listening");
+          $("#analyze-image-btn").on("click", function () {
+            var formData = new FormData();
+            formData.append("image", $("#image-upload")[0].files[0]);
+
+            $.ajax({
+              url: "/api/analyze-image",
+              type: "POST",
+              data: formData,
+              processData: false,
+              contentType: false,
+              beforeSend: function () {
+                showLoadingAnimation();
+              },
+              success: function (response) {
+                var analysisMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> Here's my analysis of the image: ${response.analysis}</div>`;
+                addMessageWithAnimation(analysisMessage);
+                updateMessageHistory("assistant", analysisMessage);
+                scrollToBottom();
+              },
+              error: function (xhr, status, error) {
+                var errorMessage = `<div class="message error-message"><strong>Error:</strong> Failed to analyze the image. ${xhr.responseText}</div>`;
+                addMessageWithAnimation(errorMessage);
+                updateMessageHistory("system", errorMessage);
+                scrollToBottom();
+              },
+              complete: function () {
+                hideLoadingAnimation();
+                $("#image-preview").hide();
+                $("#analyze-image-btn").hide();
+                $("#image-upload").val("");
+              },
+            });
           });
 
-          annyang.addCallback("errorNetwork", function () {
-            showNotification("Network error occurred", "error");
-            $("#voice-input-btn").removeClass("listening");
-          });
-        } else {
-          $("#voice-input-btn")
-            .prop("disabled", true)
-            .attr("title", "Speech recognition not supported");
-        }
+          // Voice Input Setup
+          if (annyang) {
+            var commands = {
+              "*text": function (text) {
+                $("#user-input").val(text);
+                sendMessage(text);
+              },
+            };
 
-        // Theme preference handling
-        function setTheme(theme) {
-          if (theme === "dark") {
-            $("body").addClass("dark-theme");
-            $("#theme-toggle i").removeClass("fa-moon").addClass("fa-sun");
+            annyang.addCommands(commands);
+
+            $("#voice-input-btn").on("click", function () {
+              if (annyang.isListening()) {
+                annyang.abort();
+                $(this).removeClass("listening");
+              } else {
+                annyang.start({ autoRestart: false, continuous: false });
+                $(this).addClass("listening");
+                showNotification("Listening...", "info");
+              }
+            });
+
+            annyang.addCallback("result", function () {
+              $("#voice-input-btn").removeClass("listening");
+            });
+
+            annyang.addCallback("errorNetwork", function () {
+              showNotification("Network error occurred", "error");
+              $("#voice-input-btn").removeClass("listening");
+            });
           } else {
-            $("body").removeClass("dark-theme");
-            $("#theme-toggle i").removeClass("fa-sun").addClass("fa-moon");
+            $("#voice-input-btn").prop("disabled", true).attr("title", "Speech recognition not supported");
           }
-        }
 
-        // On page load, check for saved theme preference
-        var savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-          setTheme(savedTheme);
-        } else {
-          // If no saved preference, use system preference
-          if (
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-          ) {
+          // Theme Initialization
+          var savedTheme = localStorage.getItem("theme");
+          if (savedTheme) {
+            setTheme(savedTheme);
+          } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
             setTheme("dark");
-          } else {
-            setTheme("light");
           }
-        }
 
-        // Listen for changes in system preference
-        window
-          .matchMedia("(prefers-color-scheme: dark)")
-          .addEventListener("change", function (e) {
+          window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
             if (!localStorage.getItem("theme")) {
               setTheme(e.matches ? "dark" : "light");
             }
           });
 
-        // Theme toggle functionality
-        $("#theme-toggle").click(function () {
-          var currentTheme = $("body").hasClass("dark-theme")
-            ? "dark"
-            : "light";
-          var newTheme = currentTheme === "dark" ? "light" : "dark";
-          setTheme(newTheme);
-          // Save user preference
-          localStorage.setItem("theme", newTheme);
+          // Initialize
+          loadMessageHistory();
+          setTimeout(function () {
+            if (conversationHistory.length === 0) {
+              showHeroHideNavbar();
+              addInitialMessages();
+            } else {
+              hideHeroShowNavbar();
+            }
+          }, 1000);
+          adjustLayout();
+          $(window).on("resize orientationchange", adjustLayout);
         });
-
-        // Image upload and analysis functionality
-        $("#image-upload").on("change", function (event) {
-          var file = event.target.files[0];
-          if (file) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-              $("#image-preview").attr("src", e.target.result).show();
-              $("#analyze-image-btn").show();
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-
-        $("#analyze-image-btn").on("click", function () {
-          var formData = new FormData();
-          formData.append("image", $("#image-upload")[0].files[0]);
-
-          $.ajax({
-            url: "/api/analyze-image",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-              showLoadingAnimation();
-            },
-            success: function (response) {
-              var analysisMessage = `<div class="message assistant-message"><strong>${assistantName}:</strong> Here's my analysis of the image: ${response.analysis}</div>`;
-              addMessageWithAnimation(analysisMessage);
-              updateMessageHistory("assistant", analysisMessage);
-              scrollToBottom();
-            },
-            error: function (xhr, status, error) {
-              var errorMessage = `<div class="message error-message"><strong>Error:</strong> Failed to analyze the image. ${xhr.responseText}</div>`;
-              addMessageWithAnimation(errorMessage);
-              updateMessageHistory("system", errorMessage);
-              scrollToBottom();
-            },
-            complete: function () {
-              hideLoadingAnimation();
-              $("#image-preview").hide();
-              $("#analyze-image-btn").hide();
-              $("#image-upload").val("");
-            },
-          });
-        });
-
-        // Initialize
-        loadMessageHistory();
-        setTimeout(function () {
-          if (conversationHistory.length === 0) {
-            showHeroHideNavbar();
-            addInitialMessages();
-          } else {
-            hideHeroShowNavbar();
-          }
-        }, 1000);
-        adjustLayout();
-        $(window).on("resize orientationchange", adjustLayout);
-      });
     </script>
   </body>
 </html>
