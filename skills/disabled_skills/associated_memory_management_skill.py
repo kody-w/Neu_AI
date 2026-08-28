@@ -63,7 +63,7 @@ class AssociatedMemoryManagementSkill(BasicSkill):
 
     def get_embedding_batch(self, input_array):
         client = AzureOpenAI(
-            api_key="bbc91091ac5e408782baea2eee2df97c",
+            api_key=os.environ.get("AZURE_OPENAI_API_KEY", ""),
             api_version="2024-02-01",
             azure_endpoint="https://azoaieus2.openai.azure.com/"
         )
