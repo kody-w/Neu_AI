@@ -1,2 +1,4 @@
+import os
+
 MY_PHONE = "+14048628786"
-OPENAI_KEY = "sk-proj-BG3Xxt8COCsHAJwhhYMoT3BlbkFJA4LRNJHTKMDMqMSrbUiB"
+OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
